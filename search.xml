@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>python绘图</title>
+      <link href="/2023/05/25/python%E4%B8%ADmatplot/"/>
+      <url>/2023/05/25/python%E4%B8%ADmatplot/</url>
+      
+        <content type="html"><![CDATA[<p>ategories:并列分类<br>- [Linux]<br>- [Tools]</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib <span class="comment">#引入画图数据库</span></span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment"># Data for plotting</span></span><br><span class="line"></span><br><span class="line">x1=[<span class="number">1.00287</span>,<span class="number">1.999266</span>,<span class="number">2.994908</span>,<span class="number">4.004402</span>,<span class="number">4.993592</span>,<span class="number">5.996763</span>,<span class="number">6.999978</span>,<span class="number">7.996256</span>,<span class="number">8.999601</span>,<span class="number">9.996256</span>]</span><br><span class="line">x2=[<span class="number">1.000378</span>,<span class="number">1.999083</span>,<span class="number">2.99466</span>,<span class="number">3.997875</span>,<span class="number">5.000939</span>,<span class="number">5.990441</span>,<span class="number">7.000475</span>,<span class="number">7.990269</span>,<span class="number">9.006516</span>,<span class="number">9.996397</span>]</span><br><span class="line">x3=[<span class="number">0.999666</span>,<span class="number">1.992286</span>,<span class="number">3.000313</span>,<span class="number">3.996591</span>,<span class="number">5.006603</span>,<span class="number">5.989621</span>,<span class="number">6.999579</span>,<span class="number">7.989017</span>,<span class="number">8.998749</span>,<span class="number">9.988715</span>]</span><br><span class="line">x4=[<span class="number">1.000378</span>,<span class="number">1.999083</span>,<span class="number">2.99466</span>,<span class="number">3.997875</span>,<span class="number">5.000939</span>,<span class="number">5.990441</span>,<span class="number">7.000475</span>,<span class="number">7.990269</span>,<span class="number">9.006516</span>,<span class="number">9.996397</span>]</span><br><span class="line">y1=[<span class="number">2571.774</span>,<span class="number">2629.839</span>,<span class="number">2857.258</span>,<span class="number">2978.226</span>,<span class="number">3152.419</span>,<span class="number">3191.129</span>,<span class="number">3220.161</span>,<span class="number">3304.839</span>,<span class="number">3304.839</span>,<span class="number">3304.839</span>]</span><br><span class="line">y2=[<span class="number">3130.645</span>,<span class="number">4170.968</span>,<span class="number">4412.903</span>,<span class="number">4441.935</span>,<span class="number">4504.839</span>,<span class="number">4608.871</span>,<span class="number">4608.871</span>,<span class="number">4647.581</span>,<span class="number">4754.032</span>,<span class="number">4773.387</span>]</span><br><span class="line">y3=[<span class="number">3290.323</span>,<span class="number">4195.161</span>,<span class="number">4645.161</span>,<span class="number">4729.839</span>,<span class="number">4734.677</span>,<span class="number">4792.742</span>,<span class="number">4809.677</span>,<span class="number">4928.226</span>,<span class="number">4995.968</span>,<span class="number">4995.968</span>]</span><br><span class="line">y4=[<span class="number">3943.548</span>,<span class="number">3943.548</span>,<span class="number">3943.548</span>,<span class="number">3943.548</span>,<span class="number">3943.548</span>,<span class="number">3943.548</span>,<span class="number">3943.548</span>,<span class="number">3943.548</span>,<span class="number">3943.548</span>,<span class="number">3943.548</span>]</span><br><span class="line">plt.plot(x3,y3,linewidth =<span class="number">3.0</span>, label = <span class="string">&#x27;MMES-NS&#x27;</span>,color=<span class="string">&#x27;#F27970&#x27;</span>, linestyle=<span class="string">&#x27;-&#x27;</span>,marker=<span class="string">&quot;,&quot;</span>) <span class="comment">#功能依次为线粗、标签(图例)、颜色、线类型、点形状</span></span><br><span class="line">plt.plot(x2,y2,linewidth =<span class="number">3.0</span>, label = <span class="string">&#x27;MMES&#x27;</span>,color=<span class="string">&#x27;#00CC96&#x27;</span>, linestyle=<span class="string">&#x27;-&#x27;</span>,marker=<span class="string">&quot;,&quot;</span>) <span class="comment">#功能依次为线粗、标签(图例)、颜色、线类型、点形状</span></span><br><span class="line">plt.plot(x4,y4,linewidth =<span class="number">3.0</span>, label = <span class="string">&#x27;Default Morphology&#x27;</span>,color=<span class="string">&#x27;#10A5EA&#x27;</span>, linestyle=<span class="string">&#x27;-&#x27;</span>,marker=<span class="string">&quot;,&quot;</span>) <span class="comment">#功能依次为线粗、标签(图例)、颜色、线类型、点形状</span></span><br><span class="line">plt.plot(x1,y1,linewidth =<span class="number">3.0</span>, label = <span class="string">&#x27;ES&#x27;</span>,color=<span class="string">&#x27;#8983BF&#x27;</span>, linestyle=<span class="string">&#x27;-&#x27;</span>,marker=<span class="string">&quot;,&quot;</span>) <span class="comment">#功能依次为线粗、标签(图例)、颜色、线类型、点形状</span></span><br><span class="line">plt.xlabel(<span class="string">&quot;generation&quot;</span>)</span><br><span class="line">plt.ylabel(<span class="string">&quot;fitness&quot;</span>)</span><br><span class="line">plt.title(<span class="string">&quot;Ant&quot;</span>)</span><br><span class="line">spines[:].set_visible(<span class="literal">False</span>) <span class="comment">#不显示边框</span></span><br><span class="line">plt.legend() <span class="comment">#标签显示（一般称为图例）</span></span><br><span class="line">plt.savefig(<span class="string">&#x27;myplot.pdf&#x27;</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> -算法 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> -算法 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Java中list和map的知识点汇总</title>
       <link href="/2023/05/11/%E6%B5%8B%E8%AF%95/"/>
       <url>/2023/05/11/%E6%B5%8B%E8%AF%95/</url>
@@ -23,32 +48,6 @@
             <tag> testTag </tag>
             
         </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>Hello World</title>
-      <link href="/2023/05/10/hello-world%20-%20%E5%89%AF%E6%9C%AC%20(2)/"/>
-      <url>/2023/05/10/hello-world%20-%20%E5%89%AF%E6%9C%AC%20(2)/</url>
-      
-        <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
-      
-      
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>Hello World</title>
-      <link href="/2023/05/10/hello-world%20-%20%E5%89%AF%E6%9C%AC/"/>
-      <url>/2023/05/10/hello-world%20-%20%E5%89%AF%E6%9C%AC/</url>
-      
-        <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
-      
-      
       
     </entry>
     
