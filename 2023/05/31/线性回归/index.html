@@ -1,0 +1,525 @@
+<!DOCTYPE html><html lang="zh_CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>线性回归 | 早起星人</title><meta name="author" content="早起星人"><meta name="copyright" content="早起星人"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="最小二乘法和从概率的角度">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线性回归">
+<meta property="og:url" content="http://example.com/2023/05/31/%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92/index.html">
+<meta property="og:site_name" content="早起星人">
+<meta property="og:description" content="最小二乘法和从概率的角度">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/top_image/picture/Natural-Wallpaper-9.jpg">
+<meta property="article:published_time" content="2023-05-31T14:57:20.380Z">
+<meta property="article:modified_time" content="2023-06-02T17:23:14.736Z">
+<meta property="article:author" content="早起星人">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/top_image/picture/Natural-Wallpaper-9.jpg"><link rel="shortcut icon" href="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/%E7%BD%91%E7%AB%99%E5%9B%BE%E6%A0%87.png"><link rel="canonical" href="http://example.com/2023/05/31/%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '线性回归',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-06-03 01:23:14'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230511141236.png" onerror="onerror=null;src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">5</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/%E4%B8%9B%E6%9E%97.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="早起星人"><span class="site-name">早起星人</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">线性回归</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2023-05-31T14:57:20.380Z" title="Created 2023-05-31 22:57:20">2023-05-31</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-06-02T17:23:14.736Z" title="Updated 2023-06-03 01:23:14">2023-06-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="线性回归"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="本章内容">本章内容：</h2>
+<p><a
+href="#一、线性回归1（最小二乘法及其几何意义）"><strong>1、最小二乘法（矩阵表达与几何意义）</strong></a></p>
+<p><a
+href="#二、线性回归2（最小二乘法-概率视角-高斯噪声-MLE）"><strong>2、概率角度：最小二乘法
+noise为Gaussian 的 MLE（最大似然估计）</strong></a></p>
+<p><a href="#三、线性回归3（正则化-岭回归）">**3、正则化</a></p>
+<p><strong><a
+href="#四、线性回归4（正则化-岭回归-贝叶斯角度-高斯噪声高斯先验-MAP）">4、线性回归4（正则化-岭回归-贝叶斯角度-高斯噪声高斯先验-MAP）</a></strong></p>
+<p><strong><a href="#小结">5、小结</a></strong></p>
+<p><strong>符号说明：</strong></p>
+<p>$D={ (x_1,y_1),(x_2,y_2),,(x_N,y_N)} $(数据集)</p>
+<p><span class="math inline">\(x_i\in \mathbb R^p y_i \in \mathbb R
+i=1,2,\cdots ,N\)</span></p>
+<p><span class="math inline">\(X=\begin{pmatrix} x_1&amp;x_2&amp;
+\cdots&amp; x_N \end{pmatrix}^T= \begin{pmatrix}
+x_1^T\\x_2^T\\\vdots\\x_N^T \end{pmatrix}= \begin{pmatrix}
+x_{11}&amp;x_{12} &amp; \cdots&amp; x_{1p}\\
+x_{21}&amp;x_{22}&amp;\cdots&amp;x_{2p}\\
+\vdots&amp;\vdots&amp;\ddots&amp;\vdots\\ x_{N1}&amp;x_{N2}&amp;\cdots
+&amp;x_{NP} \end{pmatrix}_{N\times P}\)</span></p>
+<p><span class="math inline">\(Y=\begin{pmatrix} y_1\\y_2\\\vdots\\y_N
+\end{pmatrix}_{N\times 1}\)</span></p>
+<h3
+id="一线性回归1最小二乘法及其几何意义">一、线性回归1（最小二乘法及其几何意义）</h3>
+<h4
+id="矩阵表达下的最小二乘法"><strong>1、矩阵表达下的最小二乘法</strong></h4>
+<p><span class="math inline">\(**Loss Function:**\)</span></p>
+<p><span class="math inline">\(L(W)=\displaystyle\sum^{N}_{i=1}{\Vert
+W^Tx_i-y_i\Vert}^2\)</span></p>
+<blockquote>
+<p>此式为均方差，若 <span class="math inline">\(L\)</span>
+越小，则回归结果与真实结果越接近 此处 <span
+class="math inline">\(W\)</span> 是一个 <span
+class="math inline">\(p\times 1\)</span> 的向量，表示 <span
+class="math inline">\(x_i\)</span> 的系数 一般情况应该是 <span
+class="math inline">\(W^Tx_i+b\)</span> 此处在 <span
+class="math inline">\(x_i\)</span> 中增加一个 <span
+class="math inline">\(x_{i0}=1\)</span> ，在 <span
+class="math inline">\(W\)</span> 中增加一个 <span
+class="math inline">\(w_0=b\)</span> ，即可用 <span
+class="math inline">\(W^Tx_i\)</span> 表示</p>
+</blockquote>
+<p>$ <span class="math display">\[\begin{equation}\begin{split}
+L(W)&amp;=\displaystyle\sum^{N}_{i=1}(W^Tx_i-y_i)^2\\ &amp;=
+\begin{pmatrix} W^Tx_1-y_1 &amp; W^Tx_2-y_2&amp;\cdots&amp;W^Tx_N-y_N
+\end{pmatrix} \begin{pmatrix}
+(W^Tx_1-y_1)^T\\(W^Tx_2-y_2)^T\\\vdots\\(W^Tx_N-y_N)^T \end{pmatrix}\\
+&amp;=[W^T\begin{pmatrix} x_1&amp;x_2&amp;\cdots&amp;x_N \end{pmatrix}
+-\begin{pmatrix} y_1&amp;y_2&amp;\cdots&amp;y_N \end{pmatrix}]
+\begin{pmatrix} x_1^TW-y_1^T\\x_2^TW-y_2^T\\\vdots\\x_N^TW-y_N^T
+\end{pmatrix}\\ &amp;=(W^TX^T - Y^T)(XW-Y)\\
+&amp;=W^TX^TXW-W^TX^TY-Y^TXW+Y^TY\\ &amp;=W^TX^TXW-2W^TX^TY+Y^TY
+\end{split}\end{equation}\]</span> $</p>
+<blockquote>
+<p><span class="math inline">\(W^TX^TY=(Y^TXW)^T\)</span> 因为 <span
+class="math inline">\(W^TX^TY\)</span> 是一个数，因此$
+W<sup>TX</sup>TY=Y^TXW$ 接下来求最优 <span class="math inline">\(W 使得
+L\)</span> 最小</p>
+</blockquote>
+<p><span class="math inline">\(\hat W=\underset
+{W}{argmin}L(W)\)</span></p>
+<p>令 <span class="math inline">\({\partial L(W)\over\partial
+W}=2X^TXW-2X^TY=0\)</span></p>
+<blockquote>
+<p>此处为矩阵求导，使用了基本的矩阵求导公式，其中： <span
+class="math inline">\({\partial (W^TX^TXW)\over\partial
+W}=X^TXW+(X^TX)^TW=2X^TXW ( X^TX 为常数)\)</span></p>
+</blockquote>
+<p>则$ W=(X<sup>TX)</sup>{-1}X^TY$</p>
+<blockquote>
+<p>视频作者说 $(X<sup>TX)</sup>{-1}X^T <span
+class="math inline">\(为伪逆，记为\)</span> A^+$ 根据线性代数来看，此处$
+(X<sup>TX)</sup>{-1}X^T 为 X 的左逆 X_{left}^{-1}$ 因为$
+X_{left}<sup>{-1}X=(X</sup>TX)<sup>{-1}(X</sup>TX)=I$</p>
+</blockquote>
+<h4
+id="最小二乘法的几何意义"><strong>2、最小二乘法的几何意义</strong></h4>
+<h5
+id="从每一个数据点的误差来看"><strong>①从每一个数据点的误差来看：</strong></h5>
+<p>每一个点对应的 <span class="math inline">\(y_i\)</span> 与其在 <span
+class="math inline">\(f(W)\)</span> 上所对应的点 <span
+class="math inline">\(W^Tx_i\)</span> 之间的差值便是误差</p>
+<p>因此将所有点的误差求和 <span
+class="math inline">\(\displaystyle\sum^{N}_{i=1}{\Vert
+W^Tx_i-y_i\Vert}^2\)</span> ，使得其最小，便可求得最优的回归函数</p>
+<p><strong>②从投影角度来看：</strong></p>
+<p><span class="math inline">\(\begin{equation}\begin{split} X_{N\times
+p}W_{p \times 1}&amp;= \begin{pmatrix} x_{11}&amp;x_{12} &amp;
+\cdots&amp; x_{1p}\\ x_{21}&amp;x_{22}&amp;\cdots&amp;x_{2p}\\
+\vdots&amp;\vdots&amp;\ddots&amp;\vdots\\ x_{N1}&amp;x_{N2}&amp;\cdots
+&amp;x_{NP} \end{pmatrix} \begin{pmatrix} w_1\\w_2\\\vdots\\w_p
+\end{pmatrix}\\ &amp;=\begin{pmatrix}
+x_{11}w_1+x_{12}w_2+\cdots+x_{1p}w_p\\
+x_{21}w_1+x_{22}w_2+\cdots+x_{2p}w_p\\ \vdots\\
+x_{N1}w_1+x_{N2}w_2+\cdots+x_{Np}w_p \end{pmatrix}\\
+&amp;=\begin{pmatrix}
+w_1\begin{pmatrix}x_{11}\\x_{21}\\\vdots\\x_{N1}\end{pmatrix}
++w_2\begin{pmatrix}x_{12}\\x_{22}\\\vdots\\x_{N2}\end{pmatrix} +\cdots+
+w_p\begin{pmatrix}x_{1p}\\x_{2p}\\\vdots\\x_{Np}\end{pmatrix}
+\end{pmatrix} \end{split}\end{equation}\)</span></p>
+<p>因此可以将 <span class="math inline">\(X\)</span>
+中每一列看作一个向量， <span class="math inline">\(XW\)</span> 便是
+<span class="math inline">\(W\)</span> 对 <span
+class="math inline">\(X\)</span> 列向量的线性组合</p>
+<blockquote>
+<p>其实这里就是 <span class="math inline">\(X\)</span>
+的列空间，关于向量空间推荐观看MIT 18.06
+的线性代数课程，老爷子讲的非常形象！ 这里其实可以看作 <span
+class="math inline">\(X\)</span> 的所有列向量组成了一个 <span
+class="math inline">\(p\)</span> 维空间</p>
+</blockquote>
+<p>从二维角度来看，每一个数据点并不都在同一条直线上</p>
+<p>引入到高维空间中，便是 <span class="math inline">\(Y\)</span> 无法由
+<span class="math inline">\(X\)</span> 的列向量线性表示，即 <span
+class="math inline">\(Y\)</span> 不属于 <span
+class="math inline">\(X\)</span> 的列空间，因此需要找到 <span
+class="math inline">\(Y\)</span> 在 <span
+class="math inline">\(X\)</span> 列空间上的投影（即 <span
+class="math inline">\(X\)</span> 列向量的一个线性组合）</p>
+<blockquote>
+<p>将 <span class="math inline">\(Y\)</span>投影在空间 <span
+class="math inline">\(F\)</span>中，便可保留 <span
+class="math inline">\(Y\)</span>在这一空间上的所有信息</p>
+</blockquote>
+<p>因此假设<span class="math inline">\(XW是Y在
+X\)</span>列空间上的投影</p>
+<p>如上图所示，虚线部分为<span
+class="math inline">\(Y-XW\)</span>,其垂直于<span
+class="math inline">\(X\)</span>列空间（即与<span
+class="math inline">\(X\)</span>的每一个列向量都垂直）</p>
+<p><span class="math inline">\(因此 X^T(Y-XW)=0\)</span></p>
+<p>所以可求得 <span class="math inline">\(W=(X^TX)^{-1}X^TY\)</span></p>
+<blockquote>
+<p>从投影角度来看最小二乘法推荐去看MIT
+18.06的课程，其中专门有一节讲最小二乘法，附上视频链接如下：</p>
+</blockquote>
+<p><strong>总结：</strong></p>
+<p>第一种角度是把误差分散在了每一个数据点上</p>
+<p>第二种角度是把误差分散在了 <span
+class="math inline">\(X\)</span>的每一个列向量上， <span
+class="math inline">\(p\)</span>个维度上面</p>
+<blockquote>
+<p>不同的角度得到了同样的结果 横看成岭侧成峰，体现了数学的美！</p>
+</blockquote>
+<hr />
+<h3
+id="二线性回归2最小二乘法-概率视角-高斯噪声-mle">二、线性回归2（最小二乘法-概率视角-高斯噪声-MLE）</h3>
+<p>最小二乘估计：</p>
+<p><span class="math inline">\(L(W)=\displaystyle\sum^{N}_{i=1}{\Vert
+W^Tx_i-y_i\Vert}^2\)</span></p>
+<p><span class="math inline">\(\hat W=arg\underset
+{W}{min}L(W)\)</span></p>
+<p><span class="math inline">\(\hat W=(X^TX)^{-1}X^TY\)</span></p>
+<blockquote>
+<p>当数据都在一条直线上时是最完美的情况，误差为0
+但现实中不可能出现这种情况，因为数据都带有一定的噪声</p>
+</blockquote>
+<p>假设噪声 <span class="math inline">\(\epsilon\sim
+N(0,\sigma^2)\)</span></p>
+<p><span class="math inline">\(y = f(W)+\epsilon\)</span></p>
+<p>因为 <span class="math inline">\(f(W)=W^TX\)</span></p>
+<p>所以 <span class="math inline">\(y=W^TX+\epsilon\)</span></p>
+<blockquote>
+<p>此处把 <span class="math inline">\(W^TX\)</span> 看成常数，因为当
+<span class="math inline">\(W\)</span> 固定后， <span
+class="math inline">\(W^TX\)</span> 是固定值</p>
+</blockquote>
+<p>因此 <span class="math inline">\(y|X,W\sim
+N(W^TX,\sigma^2)\)</span></p>
+<p><span
+class="math inline">\(p(y|X,W)={1\over\sqrt{2\pi}\sigma}\exp(-{(y-W^TX)^2\over2\sigma^2})\)</span></p>
+<blockquote>
+<p>接下来使用<span
+class="math inline">\(MLE\)</span>（最大似然估计）求解最优 <span
+class="math inline">\(W\)</span></p>
+</blockquote>
+<figure>
+<img
+src="C:\Users\15821\AppData\Roaming\Typora\typora-user-images\image-20230603011837692.png"
+alt="image-20230603011837692" />
+<figcaption aria-hidden="true">image-20230603011837692</figcaption>
+</figure>
+<figure>
+<img
+src="C:\Users\15821\AppData\Roaming\Typora\typora-user-images\image-20230603011920661.png"
+alt="image-20230603011920661" />
+<figcaption aria-hidden="true">image-20230603011920661</figcaption>
+</figure>
+<blockquote>
+<p>此结果与上节用<span class="math inline">\(loss function求解
+W\)</span> 的结果一模一样 因此从概率角度用MLE求解与用最小二乘法<span
+class="math inline">\(LSE\)</span>的本质一样
+也因此可以得出，最小二乘估计隐含了一个噪声服从正态分布的假设</p>
+</blockquote>
+<p>因此 <span class="math inline">\(LSE \Leftrightarrow MLE (noise is
+Gaussian Distribution)\)</span></p>
+<hr />
+<h3 id="三线性回归3正则化-岭回归">三、线性回归3（正则化-岭回归）</h3>
+<p><span class="math inline">\(Loss Function:
+L(W)=\displaystyle\sum^{N}_{i=1}{\Vert W^Tx_i-y_i\Vert}^2\)</span></p>
+<p><span class="math inline">\(\hat W = (X^TX)^{-1}X^TY\)</span></p>
+<blockquote>
+<p><span class="math inline">\(其中 X_{N\times p} 为 N 个样本， p
+个特征， x_i \in \mathbb R^p\)</span> <span class="math inline">\(通常 N
+\gg p 才好\)</span> <span
+class="math inline">\(但实际问题中可能出现数据样本少，或数据的特征过多，使得
+N \gg p 不满足\)</span> <span class="math inline">\(此时 X^TX
+将不可逆，导致不能求出 \hat W 的解析解\)</span> <span
+class="math inline">\(实际上这种情况也很容易导致过拟合，因为少量样本去学习多个特征（假设1个数据点去做回归，有无数种回归方式，无论哪一种都会拟合）\)</span></p>
+</blockquote>
+<p><span class="math inline">\(过拟合\rightarrow \begin{cases} 1.
+加数据\\ 2. 降维/特征选择/特征提取(PCA)\\ 3. 正则化
+\end{cases}\)</span></p>
+<p>正则化框架： <span class="math inline">\(L(W)+\lambda
+P(W)\)</span></p>
+<blockquote>
+<p>其中L L 为Loss Function， P 为penalty（惩罚函数）</p>
+</blockquote>
+<p>目标： <span class="math inline">\(arg \underset{W}{min}[L(W)+\lambda
+P(W)]\)</span></p>
+<p>正则化方式：</p>
+<p><span class="math inline">\(L1：Lasso: \ \ P(W)=\Vert
+W\Vert\)</span></p>
+<p><span class="math inline">\(L2：Ridge: \ \ P(W)=\Vert W\Vert
+^2=W^TW\)</span></p>
+<blockquote>
+<p>本节主要介绍L2 岭回归，也称权值衰减 下面计算添加了岭回归的Loss
+Function的最优 W</p>
+</blockquote>
+<p><span class="math inline">\(\begin{equation} \begin{split}
+J(W)&amp;=\displaystyle\sum^{N}_{i=1} {\Vert W^Tx_i-y_i\Vert}^2+\lambda
+W^TW\\ &amp;=(W^TX^T-Y^T)(XW-Y)+\lambda W^TW\\
+&amp;=W^TX^TXW-Y^TXW-W^TX^TY+\lambda W^TW\\
+&amp;=W^TX^TXW-2W^TX^TY+\lambda W^TW\\ &amp;=W^T(X^TX+\lambda
+I)W-2W^TX^TY \end{split} \end{equation}\)</span></p>
+<blockquote>
+<p>此推导步骤类似于第一节</p>
+</blockquote>
+<p>令<span class="math inline">\({\partial J(W)\over\partial
+W}=2(X^TX+\lambda I)W-2X^TY=0\)</span></p>
+<p><span class="math inline">\(\hat W = (X^TX+\lambda
+I)^{-1}X^TY\)</span></p>
+<blockquote>
+<p>其中 <span class="math inline">\(X^TX\)</span> 为半正定，当加上 <span
+class="math inline">\(\lambda I\)</span> 后必然正定，即可逆
+从数学角度上看，使得其可逆；从直观角度来看，抑制了过拟合的可能性</p>
+</blockquote>
+<hr />
+<h3
+id="四线性回归4正则化-岭回归-贝叶斯角度-高斯噪声高斯先验-map">四、线性回归4（正则化-岭回归-贝叶斯角度-高斯噪声高斯先验-MAP）</h3>
+<p>本节从贝叶斯的角度来看岭回归</p>
+<p>使用MAP（最大后验估计）计算最优参数</p>
+<blockquote>
+<p>此处简单介绍一下MAP是什么：
+MAP为贝叶斯学派常用的参数估计方法，他们认为模型参数服从某种潜在分布。
+其首先对参数有一个预先估计，然后根据所给数据对预估计进行不断调整，因此同一事件，先验不同则事件状态不同
+先验假设较为靠谱时有显著的效果，当数据较少时，先验对模型的参数有主导作用，随着数据的增加，真实数据样例将占据主导地位</p>
+</blockquote>
+<p>回归结果： <span class="math inline">\(f(W)=W^TX\)</span></p>
+<p>预先所给数据： <span
+class="math inline">\(y=f(W)+\epsilon=W^TX+\epsilon\)</span></p>
+<blockquote>
+<p><span class="math inline">\(与第二节一样， \epsilon 为噪声
+(\epsilon\sim N(0,\sigma^2))\)</span> <span class="math inline">\(并且
+y|X;W \sim N(W^TX,\sigma^2)\)</span></p>
+</blockquote>
+<p>接下来使用MAP进行计算：</p>
+<p>从MAP的角度来看，参数必然服从某个分布，故假设 <span
+class="math inline">\(W\sim N(0, \sigma^2_0)\)</span></p>
+<p>因此： <span class="math inline">\(\hat W = arg\underset{W}{max}\ \
+p(W|y)\)</span></p>
+<blockquote>
+<p>首先根据条件概率可得 <span class="math inline">\(p(W|y)= {p(y|W)\cdot
+p(W)\over p(y)}\)</span> 由于已知 <span
+class="math inline">\(y|X;W\)</span> 和 <span
+class="math inline">\(W\)</span> 的分布，因此可得：</p>
+<figure>
+<img
+src="C:\Users\15821\AppData\Roaming\Typora\typora-user-images\image-20230603012249079.png"
+alt="image-20230603012249079" />
+<figcaption aria-hidden="true">image-20230603012249079</figcaption>
+</figure>
+</blockquote>
+<figure>
+<img
+src="C:\Users\15821\AppData\Roaming\Typora\typora-user-images\image-20230603012124902.png"
+alt="image-20230603012124902" />
+<figcaption aria-hidden="true">image-20230603012124902</figcaption>
+</figure>
+<blockquote>
+<p>观察上式结果，其与加了Ridge正则化的Loss Function一致： <span
+class="math inline">\(J(W)=\displaystyle\sum^{N}_{i=1}{\Vert
+W^Tx_i-y_i\Vert}^2+\lambda W^TW\)</span> <span
+class="math inline">\(其中 \lambda =
+{\sigma^2\over\sigma^2_0}\)</span></p>
+</blockquote>
+<p>根据第三节和本节内容，可以发现加入了正则项的最小二乘估计与包含服从高斯分布的噪声和先验的MAP是等价的</p>
+<p><span class="math inline">\(regularized\ \ LSE \Leftrightarrow
+MAP(noise为Guassian \ Distribution;Prior为Guassian \
+Distribution)\)</span></p>
+<hr />
+<h3 id="小结">小结</h3>
+<p>线性回归虽然是最简单的模型，但我们通过四种不同的方法和角度得到的结果有着千丝万缕的联系。</p>
+<p>第一节与第二节使用最小二乘法的求解结果与包含高斯噪声的MLE求解结果等价</p>
+<p>第三节和第四节使用加了<span
+class="math inline">\(Ridge\)</span>正则项的最小二乘法求解结果与高斯先验下的MAP结果等价</p>
+<p>因此可以大致给出他们的联系 <span
+class="math inline">\(MAP(\theta)\approx
+MLE(\theta)+P(\theta)\)</span></p>
+<blockquote>
+<p>其中MLE为概率学派常用的参数估计方法，MAP为贝叶斯学派常用的参数估计方法
+MLE的思想是通过数据得到参数，其完全依赖于数据，若数据过少，则很容易出现管中窥豹的情况（过拟合）
+MAP的思想是先给出一个预先估计（即先验证），然后根据数据进行优化，这种情况下若先验较为靠谱则效果显著
+若数据量大的情况下，MAP与MLE将如出一辙</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://example.com">早起星人</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2023/05/31/%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92/">http://example.com/2023/05/31/%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a></div><div class="post_share"><div class="social-share" data-image="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/top_image/picture/Natural-Wallpaper-9.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> Donate</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/%E5%BE%AE%E4%BF%A1%E6%94%B6%E6%AC%BE%E7%A0%81.png" target="_blank"><img class="post-qr-code-img" src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/%E5%BE%AE%E4%BF%A1%E6%94%B6%E6%AC%BE%E7%A0%81.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li><li class="reward-item"><a href="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/%E6%94%AF%E4%BB%98%E5%AE%9D%E6%94%B6%E6%AC%BE%E7%A0%81.png" target="_blank"><img class="post-qr-code-img" src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/%E6%94%AF%E4%BB%98%E5%AE%9D%E6%94%B6%E6%AC%BE%E7%A0%81.png" alt="alipay"/></a><div class="post-qr-code-desc">alipay</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2023/05/25/hello-world/" title="python绘图"><img class="cover" src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/1438f36f-078d-428e-bdff-16090f550588.jpg" onerror="onerror=null;src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">python绘图</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230511141236.png" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">早起星人</div><div class="author-info__description">true</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/oneDuter"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my study Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AC%E7%AB%A0%E5%86%85%E5%AE%B9"><span class="toc-number">1.</span> <span class="toc-text">本章内容：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%921%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95%E5%8F%8A%E5%85%B6%E5%87%A0%E4%BD%95%E6%84%8F%E4%B9%89"><span class="toc-number">1.1.</span> <span class="toc-text">一、线性回归1（最小二乘法及其几何意义）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9F%A9%E9%98%B5%E8%A1%A8%E8%BE%BE%E4%B8%8B%E7%9A%84%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95"><span class="toc-number">1.1.1.</span> <span class="toc-text">1、矩阵表达下的最小二乘法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95%E7%9A%84%E5%87%A0%E4%BD%95%E6%84%8F%E4%B9%89"><span class="toc-number">1.1.2.</span> <span class="toc-text">2、最小二乘法的几何意义</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BB%8E%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%95%B0%E6%8D%AE%E7%82%B9%E7%9A%84%E8%AF%AF%E5%B7%AE%E6%9D%A5%E7%9C%8B"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">①从每一个数据点的误差来看：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%922%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95-%E6%A6%82%E7%8E%87%E8%A7%86%E8%A7%92-%E9%AB%98%E6%96%AF%E5%99%AA%E5%A3%B0-mle"><span class="toc-number">1.2.</span> <span class="toc-text">二、线性回归2（最小二乘法-概率视角-高斯噪声-MLE）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%923%E6%AD%A3%E5%88%99%E5%8C%96-%E5%B2%AD%E5%9B%9E%E5%BD%92"><span class="toc-number">1.3.</span> <span class="toc-text">三、线性回归3（正则化-岭回归）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%924%E6%AD%A3%E5%88%99%E5%8C%96-%E5%B2%AD%E5%9B%9E%E5%BD%92-%E8%B4%9D%E5%8F%B6%E6%96%AF%E8%A7%92%E5%BA%A6-%E9%AB%98%E6%96%AF%E5%99%AA%E5%A3%B0%E9%AB%98%E6%96%AF%E5%85%88%E9%AA%8C-map"><span class="toc-number">1.4.</span> <span class="toc-text">四、线性回归4（正则化-岭回归-贝叶斯角度-高斯噪声高斯先验-MAP）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">1.5.</span> <span class="toc-text">小结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/05/31/%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92/" title="线性回归"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/top_image/picture/Natural-Wallpaper-9.jpg" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="线性回归"/></a><div class="content"><a class="title" href="/2023/05/31/%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92/" title="线性回归">线性回归</a><time datetime="2023-05-31T14:57:20.380Z" title="Created 2023-05-31 22:57:20">2023-05-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/25/hello-world/" title="python绘图"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/1438f36f-078d-428e-bdff-16090f550588.jpg" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="python绘图"/></a><div class="content"><a class="title" href="/2023/05/25/hello-world/" title="python绘图">python绘图</a><time datetime="2023-05-24T16:00:00.000Z" title="Created 2023-05-25 00:00:00">2023-05-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/25/python%E4%B8%ADmatplot/" title="python绘图"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/R-C.jpg" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="python绘图"/></a><div class="content"><a class="title" href="/2023/05/25/python%E4%B8%ADmatplot/" title="python绘图">python绘图</a><time datetime="2023-05-24T16:00:00.000Z" title="Created 2023-05-25 00:00:00">2023-05-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/25/latex%E5%85%AC%E5%BC%8F/" title="Latex公式格式"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/%E5%B0%8F%E6%B1%A0%E5%A1%98.jpg" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="Latex公式格式"/></a><div class="content"><a class="title" href="/2023/05/25/latex%E5%85%AC%E5%BC%8F/" title="Latex公式格式">Latex公式格式</a><time datetime="2023-05-24T16:00:00.000Z" title="Created 2023-05-25 00:00:00">2023-05-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/11/%E6%B5%8B%E8%AF%95/" title="Java中list和map的知识点汇总"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/1438f36f-078d-428e-bdff-16090f550588.jpg" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="Java中list和map的知识点汇总"/></a><div class="content"><a class="title" href="/2023/05/11/%E6%B5%8B%E8%AF%95/" title="Java中list和map的知识点汇总">Java中list和map的知识点汇总</a><time datetime="2023-05-10T16:34:28.988Z" title="Created 2023-05-11 00:34:28">2023-05-11</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By 早起星人</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container').forEach(node => {
+            if (node.hasAttribute('display')) {
+              btf.wrap(node, 'div', { class: 'mathjax-overflow' })
+            } else {
+              btf.wrap(node, 'span', { class: 'mathjax-overflow' })
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
