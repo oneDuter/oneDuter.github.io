@@ -1,0 +1,294 @@
+<!DOCTYPE html><html lang="zh_CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Python中Pickling和Unpickling的区别详解 | 早起星人</title><meta name="author" content="早起星人"><meta name="copyright" content="早起星人"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="python绘图">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python中Pickling和Unpickling的区别详解">
+<meta property="og:url" content="http://example.com/2023/11/17/Python%E4%B8%ADPickling%E5%92%8CUnpickling%E7%9A%84%E5%8C%BA%E5%88%AB%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="早起星人">
+<meta property="og:description" content="python绘图">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/R-C.jpg">
+<meta property="article:published_time" content="2023-11-16T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-11-17T04:06:16.238Z">
+<meta property="article:author" content="早起星人">
+<meta property="article:tag" content="python语法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/R-C.jpg"><link rel="shortcut icon" href="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/%E7%BD%91%E7%AB%99%E5%9B%BE%E6%A0%87.png"><link rel="canonical" href="http://example.com/2023/11/17/Python%E4%B8%ADPickling%E5%92%8CUnpickling%E7%9A%84%E5%8C%BA%E5%88%AB%E8%AF%A6%E8%A7%A3/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Python中Pickling和Unpickling的区别详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-11-17 12:06:16'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230511141236.png" onerror="onerror=null;src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">25</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">9</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/top_image/picture/1025663-natural-scenery-rivers-and-streams-fresh-and-pleasant.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="早起星人"><span class="site-name">早起星人</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Python中Pickling和Unpickling的区别详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2023-11-16T16:00:00.000Z" title="Created 2023-11-17 00:00:00">2023-11-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-11-17T04:06:16.238Z" title="Updated 2023-11-17 12:06:16">2023-11-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/python%E8%AF%AD%E6%B3%95/">python语法</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Python中Pickling和Unpickling的区别详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="python中pickling和unpickling的区别详解">Python中Pickling和Unpickling的区别详解</h1>
+<p>更新时间：2023年09月24日 08:25:37 作者：L</p>
+<p>在本文中,我们将探讨 Python 中 pickling 和 unpickling
+之间的主要区别,我们将详细讨论 Python pickling 和 unpickling
+的概念,包括它们的目的、语法、用法以及安全可靠的 pickling 和 unpickling
+操作的注意事项,</p>
+<h5 id="目录">目录</h5>
+<ul>
+<li><a href="#Python%20Pickling">Python Pickling</a></li>
+<li><a href="#Python%20中的%20Unpickle">Python 中的 Unpickle</a></li>
+<li><a href="#%20Pickling%20和%20Unpickling%20的区别">Pickling 和
+Unpickling 的区别</a></li>
+</ul>
+<p>　Pickling是将Python对象转换为字节流的过程，以便可以将其保存到文件、数据库或通过网络传输。通过pickling，可以将复杂的对象转换为一系列字节，然后可以将这些字节重新转换回对象。这对于在不同的Python解释器之间传递对象或将对象永久保存在存储介质上都非常有用。</p>
+<p>　　Unpickling是pickling的反向过程，即从字节流中恢复原始对象的过程。通过unpickling，可以将之前pickled的对象重新还原为原始的Python对象。</p>
+<h2 id="python-pickling">Python Pickling</h2>
+<p>Pickling 是用于序列化对象的 Python
+术语，这需要将其转换为可以存储在文件中或通过网络进行通信的二进制表示形式。Python
+在pickle 模块中具有用于 pickle 对象的内置函数。</p>
+<p><strong>示例：Python 对象序列化</strong></p>
+<p>在此示例中，我们创建一个名为“person.pickle”的文件，用于存储 Python
+对象的序列化形式。我们将创建一个将被序列化的字典对象“person”。文件对象表示将用于写入腌制对象的文件。然后使用
+pickle.dump() 函数将 person 对象腌制到文件中。它需要两个参数 -
+要腌制的对象和腌制对象应写入的文件对象。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="comment"># 定义Python对象</span></span><br><span class="line">person = &#123;</span><br><span class="line">	<span class="string">&quot;name&quot;</span>: <span class="string">&quot;Alice&quot;</span>,</span><br><span class="line">	<span class="string">&quot;age&quot;</span>: <span class="number">30</span>,</span><br><span class="line">	<span class="string">&quot;gender&quot;</span>: <span class="string">&quot;female&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment"># 将对象Pickle到二进制文件</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;person.pickle&quot;</span>, <span class="string">&quot;wb&quot;</span>) <span class="keyword">as</span> file:</span><br><span class="line">	pickle.dump(person, file)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Pickling completed&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>输出：</strong></p>
+<p>运行此代码后，将在同一目录中创建一个名为“person.pickle”的二进制文件，其中包含
+person 对象的 pickle 二进制表示。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Pickling completed</span><br></pre></td></tr></table></figure>
+<h2 id="python-中的-unpickle">Python 中的 Unpickle</h2>
+<p>在 Python 中，反序列化 pickled
+对象需要将其从二进制表示形式转回可在代码中使用的 Python
+对象。这个过程称为 Unpickle。Python 的内置 pickle 模块具有 unpickle
+对象的功能。</p>
+<p><strong><em>*示例：Python 对象反序列化*</em></strong></p>
+<p>在此示例中，我们将使用 pickle 模块的 load() 函数在 Python 代码中加载
+pickle 文件。pickle.load()
+函数用于反序列化和取消文件中的对象。它需要一个参数——应该从中加载对象的文件对象。未腌制的对象存储在变量数据中。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="comment"># 从文件加载数据</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;data.pkl&#x27;</span>, <span class="string">&#x27;rb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">	data = pickle.load(f)</span><br><span class="line"><span class="comment"># 打印数据</span></span><br><span class="line"><span class="built_in">print</span>(data)</span><br></pre></td></tr></table></figure>
+<p><strong><em>*输出*</em></strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;``<span class="string">&#x27;name&#x27;</span>``: ``<span class="string">&#x27;Alice&#x27;</span>``, ``<span class="string">&#x27;age&#x27;</span>``: ``<span class="number">30</span>``, ``<span class="string">&#x27;gender&#x27;</span>``: ``<span class="string">&#x27;female&#x27;</span>``&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="pickling-和-unpickling-的区别">Pickling 和 Unpickling
+的区别</h2>
+<table>
+<colgroup>
+<col style="width: 47%">
+<col style="width: 52%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Pickling</th>
+<th style="text-align: center;">Unpickling</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">将 Python
+对象转换为二进制表示的序列化过程。</td>
+<td style="text-align: center;">将二进制表示形式转换回 Python
+对象的反序列化过程。</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">允许对象存储在文件中或通过网络传输。</td>
+<td style="text-align: center;">从存储的文件或接收的数据中检索对象。</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">使用pickle.dump()函数将对象写入文件或流。</td>
+<td style="text-align: center;">使用pickle.load()函数从文件或流中读取对象。</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">对象被转换为人类无法读取的二进制格式。</td>
+<td style="text-align: center;">二进制格式被转换回 Python 对象，可以在
+Python 代码中使用。</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">支持复杂对象的序列化，包括自定义类、函数和数据结构。</td>
+<td style="text-align: center;">支持复杂对象的反序列化，包括自定义类、函数和数据结构。</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">可以处理循环引用并在序列化期间维护对象引用。</td>
+<td style="text-align: center;">可以在反序列化过程中恢复对象引用，保留原始对象关系。</td>
+</tr>
+</tbody>
+</table>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://example.com">Li</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2023/11/17/Python%E4%B8%ADPickling%E5%92%8CUnpickling%E7%9A%84%E5%8C%BA%E5%88%AB%E8%AF%A6%E8%A7%A3/">http://example.com/2023/11/17/Python%E4%B8%ADPickling%E5%92%8CUnpickling%E7%9A%84%E5%8C%BA%E5%88%AB%E8%AF%A6%E8%A7%A3/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/python%E8%AF%AD%E6%B3%95/">python语法</a></div><div class="post_share"><div class="social-share" data-image="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/R-C.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> Donate</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/%E5%BE%AE%E4%BF%A1%E6%94%B6%E6%AC%BE%E7%A0%81.png" target="_blank"><img class="post-qr-code-img" src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/%E5%BE%AE%E4%BF%A1%E6%94%B6%E6%AC%BE%E7%A0%81.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li><li class="reward-item"><a href="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/%E6%94%AF%E4%BB%98%E5%AE%9D%E6%94%B6%E6%AC%BE%E7%A0%81.png" target="_blank"><img class="post-qr-code-img" src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/%E6%94%AF%E4%BB%98%E5%AE%9D%E6%94%B6%E6%AC%BE%E7%A0%81.png" alt="alipay"/></a><div class="post-qr-code-desc">alipay</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2023/09/15/JavaSE/day04-%E5%B8%B8%E7%94%A8API/" title="常用API"><img class="cover" src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/java-cover.png" onerror="onerror=null;src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">常用API</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230511141236.png" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">早起星人</div><div class="author-info__description">true</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">25</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">9</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/oneDuter"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my study Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#python%E4%B8%ADpickling%E5%92%8Cunpickling%E7%9A%84%E5%8C%BA%E5%88%AB%E8%AF%A6%E8%A7%A3"><span class="toc-text">Python中Pickling和Unpickling的区别详解</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95"><span class="toc-text">目录</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#python-pickling"><span class="toc-text">Python Pickling</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#python-%E4%B8%AD%E7%9A%84-unpickle"><span class="toc-text">Python 中的 Unpickle</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pickling-%E5%92%8C-unpickling-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">Pickling 和 Unpickling
+的区别</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/11/17/Python%E4%B8%ADPickling%E5%92%8CUnpickling%E7%9A%84%E5%8C%BA%E5%88%AB%E8%AF%A6%E8%A7%A3/" title="Python中Pickling和Unpickling的区别详解"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/R-C.jpg" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="Python中Pickling和Unpickling的区别详解"/></a><div class="content"><a class="title" href="/2023/11/17/Python%E4%B8%ADPickling%E5%92%8CUnpickling%E7%9A%84%E5%8C%BA%E5%88%AB%E8%AF%A6%E8%A7%A3/" title="Python中Pickling和Unpickling的区别详解">Python中Pickling和Unpickling的区别详解</a><time datetime="2023-11-16T16:00:00.000Z" title="Created 2023-11-17 00:00:00">2023-11-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/09/15/JavaSE/day04-%E5%B8%B8%E7%94%A8API/" title="常用API"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/java-cover.png" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="常用API"/></a><div class="content"><a class="title" href="/2023/09/15/JavaSE/day04-%E5%B8%B8%E7%94%A8API/" title="常用API">常用API</a><time datetime="2023-09-14T16:00:00.000Z" title="Created 2023-09-15 00:00:00">2023-09-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/09/15/JavaSE/day01-%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E9%AB%98%E7%BA%A7/" title="面向对象高级"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/java-cover.png" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="面向对象高级"/></a><div class="content"><a class="title" href="/2023/09/15/JavaSE/day01-%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E9%AB%98%E7%BA%A7/" title="面向对象高级">面向对象高级</a><time datetime="2023-09-14T16:00:00.000Z" title="Created 2023-09-15 00:00:00">2023-09-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/09/15/JavaSE/day05-Lambda%E3%80%81%E6%96%B9%E6%B3%95%E5%BC%95%E7%94%A8%E3%80%81%E7%AE%97%E6%B3%95%E3%80%81%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" title="算法和数据结构（Lambda、方法引用、正则表达式）"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/java-cover.png" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="算法和数据结构（Lambda、方法引用、正则表达式）"/></a><div class="content"><a class="title" href="/2023/09/15/JavaSE/day05-Lambda%E3%80%81%E6%96%B9%E6%B3%95%E5%BC%95%E7%94%A8%E3%80%81%E7%AE%97%E6%B3%95%E3%80%81%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" title="算法和数据结构（Lambda、方法引用、正则表达式）">算法和数据结构（Lambda、方法引用、正则表达式）</a><time datetime="2023-09-14T16:00:00.000Z" title="Created 2023-09-15 00:00:00">2023-09-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/09/15/JavaSE/day06-%E5%BC%82%E5%B8%B8%E3%80%81%E9%9B%86%E5%90%88%E8%BF%9B%E9%98%B6%EF%BC%88Collection%E3%80%81List%E9%9B%86%E5%90%88%EF%BC%89/" title="集合进阶"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/java-cover.png" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="集合进阶"/></a><div class="content"><a class="title" href="/2023/09/15/JavaSE/day06-%E5%BC%82%E5%B8%B8%E3%80%81%E9%9B%86%E5%90%88%E8%BF%9B%E9%98%B6%EF%BC%88Collection%E3%80%81List%E9%9B%86%E5%90%88%EF%BC%89/" title="集合进阶">集合进阶</a><time datetime="2023-09-14T16:00:00.000Z" title="Created 2023-09-15 00:00:00">2023-09-15</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By 早起星人</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container').forEach(node => {
+            if (node.hasAttribute('display')) {
+              btf.wrap(node, 'div', { class: 'mathjax-overflow' })
+            } else {
+              btf.wrap(node, 'span', { class: 'mathjax-overflow' })
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
