@@ -1,0 +1,19 @@
+digraph JevFlow {
+  graph [rankdir=TB, bgcolor="transparent", pad=0.25, nodesep=0.35, ranksep=0.4];
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC", fontsize=14,
+        color="#35657c", fillcolor="#edf6fa", fontcolor="#183c50", margin="0.22,0.16"];
+  edge [fontname="Noto Sans CJK SC", fontsize=12, color="#477287", fontcolor="#274e62"];
+  input [label="任务状态 + 证据 + 候选答案"];
+  policy [label="代码检查权限与硬约束"];
+  decision [label="类型化决策模型\n返回概率或等级分布", fillcolor="#d8edf5"];
+  gate [label="策略门控\n校准结果 + 错误代价 + 证据充分性", shape=diamond, fillcolor="#fff4d6"];
+  execute [label="自动处理允许的操作\n记录结果与副作用"];
+  fallback [label="补充证据 / 强模型 / 人工审核", fillcolor="#f3eafb"];
+  observe [label="评估与反馈\n成功率 · 覆盖率/风险 · 时延 · 成本"];
+  input -> policy -> decision -> gate;
+  gate -> execute [label="满足条件"];
+  gate -> fallback [label="需升级"];
+  fallback -> decision [label="新证据：更新状态再判断", style=dashed];
+  execute -> observe;
+  fallback -> observe;
+}

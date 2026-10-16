@@ -1,0 +1,673 @@
+<!DOCTYPE html><html lang="zh_CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Jev 决策模型学习记录：原理、概率校准与工程实践 | 早起星人</title><meta name="author" content="早起星人"><meta name="copyright" content="早起星人"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="基于技术分享转写整理，纠正概率、ECE、Brier 与温度校准概念，比较开源路线，补充智能体评测与可运行练习。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Jev 决策模型学习记录：原理、概率校准与工程实践">
+<meta property="og:url" content="https://oneDuter.github.io/2026/10/16/learning/jev-decision-models/">
+<meta property="og:site_name" content="早起星人">
+<meta property="og:description" content="基于技术分享转写整理，纠正概率、ECE、Brier 与温度校准概念，比较开源路线，补充智能体评测与可运行练习。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://oneDuter.github.io/img/learning-notes/jev-decision-flow.svg">
+<meta property="article:published_time" content="2026-10-16T00:00:00+08:00">
+<meta property="article:modified_time" content="2026-10-16T00:00:00+08:00">
+<meta property="article:author" content="早起星人">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://oneDuter.github.io/img/learning-notes/jev-decision-flow.svg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://oneDuter.github.io/2026/10/16/learning/jev-decision-models/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {"title": "Jev 决策模型学习记录：原理、概率校准与工程实践", "isPost": true, "isHome": false, "isHighlightShrink": false, "isToc": true, "postUpdate": "2026-10-16 00:00:00"}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><style>#article-container .math-display{overflow-x:auto;margin:1.4em 0;padding:.3em 0}#article-container math{font-size:1.08em}#article-container pre{overflow:auto;padding:1em;border-radius:6px;background:var(--hl-bg,#f4f6f8)}#article-container td,#article-container th{vertical-align:top}#article-container img{max-height:750px;object-fit:contain}#post-meta{line-height:2}#post-meta a{color:inherit;text-decoration:underline}@media(max-width:600px){#post-info .post-title{font-size:24px;line-height:1.5;text-wrap:balance}}</style></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230511141236.png" onerror="onerror=null;src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">46</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">11</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background:linear-gradient(120deg,#142f45,#356d83)"><nav id="nav"><span id="blog-info"><a href="/" title="早起星人"><span class="site-name">早起星人</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Jev 决策模型学习记录：原理、概率校准与工程实践</h1><div id="post-meta"><time datetime="2026-10-16T00:00:00+08:00">2026-10-16</time> · <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a> · <a href="https://github.com/oneDuter/oneDuter.github.io/blob/main/learning-notes/2026-10-16-jev-decision-models.md">Markdown 学习记录</a></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>整理日期：2026-10-16。主题：类型化决策、System One、概率校准、智能体路由与安全护栏。</p>
+<blockquote>
+<p>资料说明：本文基于用户提供的《Jev 技术分享与应用调研》PDF（20 页，分享日期 2026-10-15）整理。原文件是会议语音转写稿，并非包含完整实验、参考文献和方法定义的学术论文。本文保留技术主线，修正转写和概念错误，补充可核验资料与实践方法；不把讨论中的推测写成已证实的产品实现。</p>
+<p>阅读标记：<strong>原文概括</strong>表示对分享内容的归纳；<strong>核查纠正</strong>表示有源码、文档或数学定义支持的修订；<strong>补充理解</strong>表示推导与工程建议；<strong>待核实</strong>表示缺少充分的一手证据。正文中的 [P] 指原 PDF，数字引用对应文末来源。公开记录只包含整理后的技术内容。</p>
+</blockquote>
+<h2 id="1-先建立整体认识">1. 先建立整体认识</h2>
+<p><strong>原文概括</strong>：许多智能体任务真正需要的只是“选哪个工具”“是否有风险”“优先级多高”，却使用自回归语言模型生成一段 JSON，再解析出一个决定。Jev 一类模型把任务改写为：给定共享状态 <code>state</code> 和若干有明确答案类型的 <code>questions</code>，返回候选项概率、判断概率或评分。[P，第 1–5 页，00:00–15:18]</p>
+<p><strong>补充理解</strong>：它适合作为高频、有限答案空间的决策组件。它与生成模型可以协作：前者处理分类、选择、筛选和风险信号；后者负责开放式表达、复杂规划、补充证据与解释。System One / System Two 是工作方式的类比，不能据此判断内部是否具有某种“人类直觉”或推理能力。</p>
+<p><img alt="决策模型与语言模型协作流程" src="/img/learning-notes/jev-decision-flow.svg" /></p>
+<p>判断是否值得使用，可以先问四个问题：</p>
+<ol>
+<li>能否描述一个充分的状态，并列出候选答案或评分规则？</li>
+<li>决策是否足够频繁，值得优化时延、成本和解析环节？</li>
+<li>是否有代表性标注数据，可以验证概率及阈值？</li>
+<li>业务能否明确处理证据缺失、答案空间不完整和模型不确定？</li>
+</ol>
+<p>只满足前两项，适合做原型；后两项决定能否可靠上线。</p>
+<h2 id="2-输入输出先区分题型再讨论置信度">2. 输入输出：先区分题型，再讨论置信度</h2>
+<p>以下语义已对照 TypeSafe 官方 Python SDK 的类型定义和官方使用指南。[1][2]</p>
+<table>
+<thead>
+<tr>
+<th>题型</th>
+<th>输入应明确什么</th>
+<th>输出的主要含义</th>
+<th>常见误用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Noul</code></td>
+<td>一个命题，以及何为真、何为假</td>
+<td><code>noul = P(命题为真)</code>，范围 0–1</td>
+<td>把 0.04 叫作“只有 4% 置信度”；实际上它强烈偏向“假”</td>
+</tr>
+<tr>
+<td><code>Choice</code></td>
+<td>候选标签及其适用条件</td>
+<td>一个选项、每个选项的 <code>probabilities</code>，以及单独的 <code>confidence</code></td>
+<td>把候选分布当成“所有现实答案”的概率，或假定 <code>confidence</code> 必然等于最大候选概率</td>
+</tr>
+<tr>
+<td><code>Score</code></td>
+<td>从 0 开始、按顺序排列的等级描述</td>
+<td>各等级概率，以及等级位置的概率加权期望 <code>score</code></td>
+<td>只保存均值，丢掉分布；把得分大小当置信度</td>
+</tr>
+<tr>
+<td><code>Box</code></td>
+<td>要在图像中定位的对象或区域</td>
+<td>归一化边界框及可能提供的置信度</td>
+<td>把一个边界框等同于完整检测、分割或任意视觉推理能力</td>
+</tr>
+</tbody>
+</table>
+<p>当前 SDK 已包含 <code>Box</code>，其具体模型支持范围仍要查看所用模型版本；SDK 中的示例使用 <code>jev-preview</code>。不能因为 SDK 有这个类型，就推断所有服务和模型均支持。[1]</p>
+<h3 id="21-noul-的-004-到底表示什么">2.1 Noul 的 0.04 到底表示什么</h3>
+<p>若问题是“此工具调用是否越权”，返回 0.04，含义是模型给越权命题分配了 4% 概率。按 0.5 阈值作二分类时，其选择为“否”；此时所选答案的概率可以写成 <code>max(p, 1-p)</code>，即 0.96。但是否放行必须由错误代价决定，不能自动沿用 0.5。</p>
+<p>多个标签可以同时成立时，应使用多个判断或真正的多标签接口，而不是把所有标签塞入一个互斥的 <code>Choice</code>。多个 Noul 概率无需加起来等于 1。</p>
+<h3 id="22-score-为什么会有小数">2.2 Score 为什么会有小数</h3>
+<p>假设等级为 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>r</mi><mo>&#x02208;</mo><mo stretchy="false">&#x0007B;</mo><mn>0</mn><mo>&#x0002C;</mo><mn>1</mn><mo>&#x0002C;</mo><mn>2</mn><mo>&#x0002C;</mo><mn>3</mn><mo stretchy="false">&#x0007D;</mo></mrow></math>，其概率为 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>p</mi><mi>r</mi></msub></mrow></math>，则：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>&#x1D53C;</mi><mo stretchy="false">[</mo><mi>R</mi><mo stretchy="false">]</mo><mo>&#x0003D;</mo><munderover><mo>&#x02211;</mo><mrow><mi>r</mi><mo>&#x0003D;</mo><mn>0</mn></mrow><mrow><mn>3</mn></mrow></munderover><mi>r</mi><msub><mi>p</mi><mi>r</mi></msub><mo>&#x0002E;</mo></mrow></math></div>
+
+<p>例如分布 <code>[0.10, 0.20, 0.05, 0.65]</code> 对应期望 2.25。它不是模型又生成了一个“2.25 档”。</p>
+<p><strong>核查纠正</strong>：转写稿先列出 0–3 档，随后出现“3.37 分”。若档位确实只有 0–3，期望不可能超过 3；可能是转写数字有误或漏记了更高档位，不能照抄这个例子。[P，第 3 页，06:13–08:05]</p>
+<p>均值相同也可能代表完全不同的判断：在 0–4 档中，全部概率放在 2，与一半放在 0、一半放在 4，期望都为 2。处理争议或风险时应保留完整分布。</p>
+<p>官方指南还指出，Choice/Score 的 <code>confidence</code> 总结的是分布集中程度，不是整个工作流成功的概率，更不是执行权限。[2] 应分别记录题型、原始分布、返回的置信度和自己定义的门控分数，避免混用。</p>
+<h2 id="3-相比文本生成真正节省了什么">3. 相比文本生成，真正节省了什么</h2>
+<p>自回归生成通常需要输入预填充，再逐 token 解码；决策模型可以直接读取选项分数，减少生成、协议包装和解析。多个独立问题共享状态时，还可能复用状态计算并批量输出。[P，第 3–4 页；2、6、7]</p>
+<p><strong>核查纠正</strong>：</p>
+<ul>
+<li><strong>“只输出一个 token”不是所有实现的准确描述。</strong> 有些方法读取一个位置的候选 token logits，有些使用分类头、指针头或向量相似度，根本不采样答案 token。API 返回的 JSON 字节和用量中的 <code>output_tokens</code> 也不等于自回归解码步数。</li>
+<li><strong>“一个前向过程”不意味着常数成本。</strong> 输入长度、候选数量、问题数量、图像、注意力和打分头仍消耗计算与显存。增加问题并非免费。</li>
+<li><strong>输入共享不必然等于状态只算一次。</strong> 要看注意力结构、缓存实现、批处理方式以及是否真的提供了共享前缀计算。</li>
+<li><strong>生成模型也能使用结构化输出、约束解码、批处理和前缀缓存。</strong> 因此不能用冗长、无约束 JSON 作为唯一基线，宣布所有收益都来自模型架构。</li>
+<li><strong>结构合法不等于语义正确。</strong> 请求校验、服务错误、超时和业务规则依然存在；有限选项只能限制答案空间，不能保证选项选对。</li>
+</ul>
+<p>分享中的“每百万输入 token 0.042 美元”应视作当时的价格口径，不作为本文核验后的现价。官方 SDK 当前注明输出 token 免费，但具体单价、模型、计费输入和缓存政策必须按实际服务报价核对。[P，第 4 页，10:41；1]</p>
+<p>一个更完整的成本估计为：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>C</mi><mrow><mrow><mi mathvariant="normal">t</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi></mrow></mrow></msub><mo>&#x0003D;</mo><msub><mi>C</mi><mrow><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">n</mi></mrow></mrow></msub><mo>&#x0002B;</mo><mi>&#x003C1;</mi><msub><mi>C</mi><mrow><mrow><mi mathvariant="normal">f</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">b</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">k</mi></mrow></mrow></msub><mo>&#x0002B;</mo><msub><mi>C</mi><mrow><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi></mrow></mrow></msub><mo>&#x0002B;</mo><msub><mi>C</mi><mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">y</mi></mrow></mrow></msub><mo>&#x0002B;</mo><msub><mi>C</mi><mrow><mrow><mi mathvariant="normal">o</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">s</mi></mrow></mrow></msub><mo>&#x0002C;</mo></mrow></math></div>
+
+<p>其中 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>&#x003C1;</mi></mrow></math> 是升级到强模型或人工的比例。还要测量端到端 p50/p95、吞吐、缓存命中率和最终任务成功率，而不是只比较 GPU 前向时间。</p>
+<h2 id="4-概率准确率与校准三个概念不要混在一起">4. 概率、准确率与校准：三个概念不要混在一起</h2>
+<p>设多分类输出为 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>p</mi><mi>k</mi></msub><mo stretchy="false">&#x00028;</mo><mi>x</mi><mo stretchy="false">&#x00029;</mo></mrow></math>，所选类别为 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mover><mi>y</mi><mo stretchy="false">&#x0005E;</mo></mover><mo>&#x0003D;</mo><mi>\arg</mi><msub><mo>max</mo><mi>k</mi></msub><msub><mi>p</mi><mi>k</mi></msub><mo stretchy="false">&#x00028;</mo><mi>x</mi><mo stretchy="false">&#x00029;</mo></mrow></math>，门控分数暂定义为 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>q</mi><mo>&#x0003D;</mo><msub><mo>max</mo><mi>k</mi></msub><msub><mi>p</mi><mi>k</mi></msub><mo stretchy="false">&#x00028;</mo><mi>x</mi><mo stretchy="false">&#x00029;</mo></mrow></math>。这里的 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>q</mi></mrow></math> 是本文的定义，不假定与某厂商的 <code>confidence</code> 字段一致。</p>
+<ul>
+<li><strong>准确率</strong>：最终选对了多少。</li>
+<li><strong>区分能力</strong>：能否把不同类别或不同难度区分开。需要查看任务指标、排序指标和错误分布。</li>
+<li><strong>校准</strong>：报出某个概率的一组预测，其事件发生频率是否与该概率一致。</li>
+</ul>
+<p>以“所选类别是否正确”为事件，理想的 top-label 校准可以写为：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>P</mi><mo stretchy="false">&#x00028;</mo><mi>Y</mi><mo>&#x0003D;</mo><mover><mi>Y</mi><mo stretchy="false">&#x0005E;</mo></mover><mo>&#x02223;</mo><mi>Q</mi><mo>&#x0003D;</mo><mi>q</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mi>q</mi><mo>&#x0002E;</mo></mrow></math></div>
+
+<p>有限样本只能按区间估计，不能从单次回答断言“这个样本恰有 80% 正确率”。总是报总体正确率的模型也可能校准得不错，却不能有效识别哪些样本容易出错。高准确率、低 ECE 和高业务价值并不互相等价。</p>
+<h3 id="41-ece每个区间比较平均置信度与实际正确率">4.1 ECE：每个区间比较平均置信度与实际正确率</h3>
+<p>把样本按 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>q</mi><mi>i</mi></msub></mrow></math> 划分为 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>M</mi></mrow></math> 个桶 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>B</mi><mi>m</mi></msub></mrow></math>，常见 ECE 定义为：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mrow><mi mathvariant="normal">E</mi><mi mathvariant="normal">C</mi><mi mathvariant="normal">E</mi></mrow><mo>&#x0003D;</mo><munderover><mo>&#x02211;</mo><mrow><mi>m</mi><mo>&#x0003D;</mo><mn>1</mn></mrow><mrow><mi>M</mi></mrow></munderover><mfrac><mrow><mo stretchy="false">&#x0007C;</mo><msub><mi>B</mi><mi>m</mi></msub><mo stretchy="false">&#x0007C;</mo></mrow><mrow><mi>n</mi></mrow></mfrac><mrow><mo stretchy="true" fence="true" form="prefix">&#x0007C;</mo><mrow><mi mathvariant="normal">a</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">c</mi></mrow><mo stretchy="false">&#x00028;</mo><msub><mi>B</mi><mi>m</mi></msub><mo stretchy="false">&#x00029;</mo><mo>&#x02212;</mo><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">f</mi></mrow><mo stretchy="false">&#x00028;</mo><msub><mi>B</mi><mi>m</mi></msub><mo stretchy="false">&#x00029;</mo><mo stretchy="true" fence="true" form="postfix">&#x0007C;</mo></mrow><mo>&#x0002C;</mo></mrow></math></div>
+
+<p>其中 <code>acc</code> 是桶内实际正确比例，<code>conf</code> 是桶内预测置信度的平均值。</p>
+<p><strong>核查纠正</strong>：0–0.1 桶应比较“实际正确率”和“桶内平均置信度”，不是要求正确率恰为 10%，也不是直接拿桶中点 5% 代替样本均值。[P，第 6 页，18:16–19:51]</p>
+<p>ECE 的局限包括：依赖分桶数量和方式、样本少时不稳定、可能掩盖类别或子群体差异，并且不是严格适当评分规则。常规硬分桶不适合直接作普通反向传播损失，但“不能用于任何训练”说得过于绝对：可以研究平滑近似，强化学习也并不要求奖励对模型参数可微。</p>
+<h3 id="42-brier完整类别分布与所选答案正确性是两种不同任务">4.2 Brier：完整类别分布与所选答案正确性是两种不同任务</h3>
+<p>对二元事件 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>y</mi><mi>i</mi></msub><mo>&#x02208;</mo><mo stretchy="false">&#x0007B;</mo><mn>0</mn><mo>&#x0002C;</mo><mn>1</mn><mo stretchy="false">&#x0007D;</mo></mrow></math>，预测其发生概率为 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>p</mi><mi>i</mi></msub></mrow></math>：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">S</mi></mrow><mrow><mrow><mi mathvariant="normal">b</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">y</mi></mrow></mrow></msub><mo>&#x0003D;</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mi>n</mi></mrow></mfrac><munder><mo>&#x02211;</mo><mi>i</mi></munder><mo stretchy="false">&#x00028;</mo><msub><mi>p</mi><mi>i</mi></msub><mo>&#x02212;</mo><msub><mi>y</mi><mi>i</mi></msub><msup><mo stretchy="false">&#x00029;</mo><mn>2</mn></msup><mo>&#x0002E;</mo></mrow></math></div>
+
+<p>若 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>c</mi><mi>i</mi></msub><mo>&#x0003D;</mo><mrow><mn mathvariant="bold">1</mn></mrow><mo stretchy="false">[</mo><msub><mover><mi>y</mi><mo stretchy="false">&#x0005E;</mo></mover><mi>i</mi></msub><mo>&#x0003D;</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="false">]</mo></mrow></math> 表示“答案是否正确”，而 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>q</mi><mi>i</mi></msub></mrow></math> 是对正确性的预测，则对应的是：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">S</mi></mrow><mrow><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">s</mi></mrow></mrow></msub><mo>&#x0003D;</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mi>n</mi></mrow></mfrac><munder><mo>&#x02211;</mo><mi>i</mi></munder><mo stretchy="false">&#x00028;</mo><msub><mi>q</mi><mi>i</mi></msub><mo>&#x02212;</mo><msub><mi>c</mi><mi>i</mi></msub><msup><mo stretchy="false">&#x00029;</mo><mn>2</mn></msup><mo>&#x0002E;</mo></mrow></math></div>
+
+<p>它们外形相同，但事件不同。对完整的 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>K</mi></mrow></math> 类分布，本文采用不除以类别数的定义：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">S</mi></mrow><mrow><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">i</mi></mrow></mrow></msub><mo>&#x0003D;</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mi>n</mi></mrow></mfrac><munder><mo>&#x02211;</mo><mi>i</mi></munder><munderover><mo>&#x02211;</mo><mrow><mi>k</mi><mo>&#x0003D;</mo><mn>1</mn></mrow><mrow><mi>K</mi></mrow></munderover><msup><mrow><mo stretchy="true" fence="true" form="prefix">&#x00028;</mo><msub><mi>p</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub><mo>&#x02212;</mo><mrow><mn mathvariant="bold">1</mn></mrow><mo stretchy="false">[</mo><msub><mi>y</mi><mi>i</mi></msub><mo>&#x0003D;</mo><mi>k</mi><mo stretchy="false">]</mo><mo stretchy="true" fence="true" form="postfix">&#x00029;</mo></mrow><mn>2</mn></msup><mo>&#x0002E;</mo></mrow></math></div>
+
+<p>这一多分类定义的范围是 0–2；二分类时它等于相应二元 Brier 的两倍。不同库可能使用不同归一化，横向比较前应核对定义。</p>
+<p><strong>补充理解</strong>：只优化 top-label 的正确性分数，不能等同于校准完整类别分布。Brier 与负对数似然是严格适当评分规则，但它们同时受校准、区分能力和数据本身不确定性影响；Brier 下降不必然表示校准单独改善。[4][5]</p>
+<h3 id="43-温度缩放可以用带标签数据拟合并非只能盲调">4.3 温度缩放可以用带标签数据拟合，并非只能“盲调”</h3>
+<p>给定 logits <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>z</mi><mi>k</mi></msub></mrow></math> 和正温度 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>T</mi></mrow></math>：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>p</mi><mi>k</mi></msub><mo stretchy="false">&#x00028;</mo><mi>T</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mfrac><mrow><mi>exp</mi><mo stretchy="false">&#x00028;</mo><msub><mi>z</mi><mi>k</mi></msub><mo>&#x0002F;</mo><mi>T</mi><mo stretchy="false">&#x00029;</mo></mrow><mrow><msub><mo>&#x02211;</mo><mi>j</mi></msub><mi>exp</mi><mo stretchy="false">&#x00028;</mo><msub><mi>z</mi><mi>j</mi></msub><mo>&#x0002F;</mo><mi>T</mi><mo stretchy="false">&#x00029;</mo></mrow></mfrac><mo>&#x0002C;</mo><mspace width="2em" /><mi>T</mi><mo>&#x0003E;</mo><mn>0</mn><mo>&#x0002E;</mo></mrow></math></div>
+
+<p>常见方法是在独立校准集上最小化负对数似然：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msup><mi>T</mi><mo>&#x0002A;</mo></msup><mo>&#x0003D;</mo><mi>\arg</mi><msub><mo>min</mo><mrow><mi>T</mi><mo>&#x0003E;</mo><mn>0</mn></mrow></msub><mrow><mo stretchy="true" fence="true" form="prefix">[</mo><mo>&#x02212;</mo><msub><mo>&#x02211;</mo><mi>i</mi></msub><mi>log</mi><msub><mi>p</mi><mrow><mi>i</mi><mo>&#x0002C;</mo><msub><mi>y</mi><mi>i</mi></msub></mrow></msub><mo stretchy="false">&#x00028;</mo><mi>T</mi><mo stretchy="false">&#x00029;</mo><mo stretchy="true" fence="true" form="postfix">]</mo></mrow><mo>&#x0002E;</mo></mrow></math></div>
+
+<p><strong>核查纠正</strong>：温度能通过真实标签拟合，不是只能盲调。一般而言，<code>T &gt; 1</code> 使分布变平，<code>T &lt; 1</code> 使其更尖锐。单一正温度不改变单个样本的类别 argmax，因此不会修复分类错误，也无法解决证据缺失或复杂的类间偏差。它不保证任何新分布上仍然校准。[P，第 6 页，20:42；4、5]</p>
+<p>数据应分为训练集、校准集和最终测试集；时间、用户、会话或来源有关联时应按组切分。不能在测试集拟合温度后再把该测试结果称为独立评估。</p>
+<h3 id="44-rlcr-和-jev-的-rlcd明确已知与未知">4.4 RLCR 和 Jev 的 RLCD：明确已知与未知</h3>
+<p><strong>已核实</strong>：分享提到的 RLCR 对应 2025 年论文 <em>Beyond Binary Rewards: Training LMs to Reason about Their Uncertainty</em>，官方代码在格式正确且成功解析置信度时使用：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>r</mi><mrow><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">r</mi></mrow></mrow></msub><mo>&#x0003D;</mo><mn>1</mn><mo>&#x02212;</mo><mo stretchy="false">&#x00028;</mo><mi>c</mi><mo>&#x02212;</mo><mi>q</mi><msup><mo stretchy="false">&#x00029;</mo><mn>2</mn></msup><mo>&#x0002E;</mo></mrow></math></div>
+
+<p>格式不合格或解析失败的处理、准确率奖励、奖励组合和训练配置，应进一步查看其代码；不能只用这个式子概括全部训练过程。[3]</p>
+<p><strong>待核实</strong>：RLCR 是可参考的公开校准方法，不构成“Jev 的 RLCD 就是照此实现”的证据。本文没有获得 Jev 训练数据、完整奖励、网络结构和消融实验的一手披露，不补写一套声称属于官方的训练配方。交叉熵 SFT 本身也能训练概率分布；是否校准取决于数据、目标、优化与评估，不能简单写成“只有 RLCD 才有概率校准”。</p>
+<h2 id="5-六条实现路线比较计算方式不把开源方案当作闭源内部实现">5. 六条实现路线：比较计算方式，不把开源方案当作闭源内部实现</h2>
+<h3 id="51-semif读取候选-token-logits-的低成本基线">5.1 SemIf：读取候选 token logits 的低成本基线</h3>
+<p>转写中的 <code>sameif</code> 对应 SemIf（原项目名 OpenJev）。它可以复用冻结模型，从候选编码的 logits 读取决策，避免逐 token 生成答案。当前 README 也已提及按工作负载做温度校准，因此“完全没有任何校准”不应作为永久结论。[6]</p>
+<p>若候选编码的 token logits 为 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>z</mi><mrow><msub><mi>t</mi><mi>k</mi></msub></mrow></msub></mrow></math>，在候选集合内部归一化可得：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mover><mi>p</mi><mo stretchy="false">&#x0007E;</mo></mover><mi>k</mi></msub><mo>&#x0003D;</mo><mfrac><mrow><mi>exp</mi><mo stretchy="false">&#x00028;</mo><msub><mi>z</mi><mrow><msub><mi>t</mi><mi>k</mi></msub></mrow></msub><mo stretchy="false">&#x00029;</mo></mrow><mrow><msub><mo>&#x02211;</mo><mrow><mi>j</mi><mo>&#x02208;</mo><mi mathvariant="script">A</mi></mrow></msub><mi>exp</mi><mo stretchy="false">&#x00028;</mo><msub><mi>z</mi><mrow><msub><mi>t</mi><mi>j</mi></msub></mrow></msub><mo stretchy="false">&#x00029;</mo></mrow></mfrac><mo>&#x0002E;</mo></mrow></math></div>
+
+<p>应核实编码在所用分词器和具体上下文中是否真为单 token；“大写英文字母一定是一个 token”不能跨模型、空格和模板无条件成立。重新归一化会丢掉候选集合以外的概率质量，且模型偏好、模板、选项顺序和措辞均可能影响结果。这个分布不自动等于答案正确的概率。</p>
+<h3 id="52-clm双编码器与对比学习">5.2 CLM：双编码器与对比学习</h3>
+<p>CLM 的原项目为 <code>Contrastive-LM/CLM</code>，不要把缩写中的 C 与 causal 混淆。其公开说明使用状态和动作编码路径：冻结语言模型主干，加可训练投影头，再通过相似度进行选择。当前说明使用 Qwen3-8B pooling 服务；训练阶段包括配对预训练、困难负例和智能体轨迹后训练。[7]</p>
+<p>设 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>s</mi><mi>i</mi></msub><mo>&#x0003D;</mo><mi>f</mi><mo stretchy="false">&#x00028;</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false">&#x00029;</mo></mrow></math>、<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>a</mi><mi>i</mi></msub><mo>&#x0003D;</mo><mi>g</mi><mo stretchy="false">&#x00028;</mo><msub><mi>o</mi><mi>i</mi></msub><mo stretchy="false">&#x00029;</mo></mrow></math>，InfoNCE 的一个方向为：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>L</mi><mrow><mi>s</mi><mo>&#x02192;</mo><mi>a</mi></mrow></msub><mo>&#x0003D;</mo><mo>&#x02212;</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mi>B</mi></mrow></mfrac><munder><mo>&#x02211;</mo><mi>i</mi></munder><mi>log</mi><mfrac><mrow><mi>exp</mi><mo stretchy="false">&#x00028;</mo><msubsup><mi>s</mi><mi>i</mi><mo>&#x022A4;</mo></msubsup><msub><mi>a</mi><mi>i</mi></msub><mo>&#x0002F;</mo><mi>&#x003C4;</mi><mo stretchy="false">&#x00029;</mo></mrow><mrow><msubsup><mo>&#x02211;</mo><mrow><mi>j</mi><mo>&#x0003D;</mo><mn>1</mn></mrow><mrow><mi>B</mi></mrow></msubsup><mi>exp</mi><mo stretchy="false">&#x00028;</mo><msubsup><mi>s</mi><mi>i</mi><mo>&#x022A4;</mo></msubsup><msub><mi>a</mi><mi>j</mi></msub><mo>&#x0002F;</mo><mi>&#x003C4;</mi><mo stretchy="false">&#x00029;</mo></mrow></mfrac><mo>&#x0002E;</mo></mrow></math></div>
+
+<p>对称目标再加入反向检索。<strong>核查纠正</strong>：分母包含正例和负例；不能把正例仅放在分子、负例仅放在分母。[P，第 7–8 页，24:17–29:09]</p>
+<p>独立、固定的动作描述可缓存向量；变化的状态需要重新编码。还应检查重复答案、多个正确动作形成的假负例，以及 softmax 相似度是否在目标任务上校准。<strong>对比训练的温度和事后拟合的校准温度不是同一个概念。</strong></p>
+<h3 id="53-kev可变候选的指针头与问题隔离">5.3 Kev：可变候选的指针头与问题隔离</h3>
+<p>转写中的 <code>cube</code>、<code>keep</code> 等可按上下文对应 Kev。它把状态、问题和选项组织成特殊分隔符序列，以问题末尾 <code>&lt;decide&gt;</code> 的隐状态查询各选项 <code>&lt;/opt&gt;</code> 位置的隐状态，经过指针头和 softmax 得到候选分布。共享打分头可以处理不同数量的候选项，而不是为每个固定类别永久分配一个输出神经元。[8]</p>
+<p><strong>更新补充</strong>：当前 Kev README 明确区分主干：纯注意力模型可通过问题隔离的注意力 mask 和位置编号复用状态；Qwen3.5/3.8 的混合结构还包含 Gated DeltaNet，递归层不会遵循注意力 mask，因此使用独立问题行及状态缓存来实现隔离。最新 27B 版本还使用全参数微调，不能概括为“所有型号都是 LoRA”。</p>
+<p>这说明只说“加一个 tree mask 就能隔离所有模型”并不充分；需要检查所有具有状态传播的层。</p>
+<h3 id="54-laya双向编码与候选位置打分">5.4 Laya：双向编码与候选位置打分</h3>
+<p>Laya 展示了无需沿用自回归解码器的路线。对双向编码器，可把候选项的指定位置表示送入共享打分头。<strong>核查纠正</strong>：BERT/ModernBERT 应称为双向编码器，通常以掩码语言建模等目标预训练，不是“双向自回归模型”。[P，第 9–10 页，32:20–36:08]</p>
+<p>当前公开 README 列出了 ModernBERT-large 的 421M 模型和 mmBERT-base 的 322M 多语言模型等，参数量、上下文长度与语言能力必须连同 checkpoint 一起记录。“只有 396M”至多是旧版本或不同统计口径，不能当作整个系列的现状。[9]</p>
+<p>转写中“logits 噪声增强”与“高斯噪声”的具体分布、目标和阶段没有附精确实现位置，本文不擅自补成确定公式。应以所用版本的训练脚本为准；噪声增强也不自动保证选项置换不变性。</p>
+<h3 id="55-clef联合候选与问题特征的打分设计">5.5 Clef：联合候选与问题特征的打分设计</h3>
+<p>转写中的 <code>cleft</code>、<code>cliff</code> 应规范为 Cloudflare 的 <strong>Clef</strong>。[P，第 10–12 页，36:08–44:58]</p>
+<p><strong>原文概括</strong>：分享描述了一类较复杂的头部：池化问题及候选表示，结合非上下文化的词嵌入，通过交叉注意力从状态检索证据，再融合语义相似度、候选匹配与 MLP 残差得分。它可以作为理解联合打分头的线索。</p>
+<p><strong>待核实</strong>：本次研究环境未能访问 Cloudflare 的模型卡原文，因此不把上述转写重建成“已逐行核验的 Clef 精确架构”，也不确认“10 月 1 日发布”和完整训练配方。正式复现实验应补齐模型版本、代码提交、张量定义和权重许可，再讨论消融与效果。原始入口列在参考资料 [12]。</p>
+<h3 id="56-vela-vllm-semantic-router决策与片段抽取要分开">5.6 Vela / vLLM Semantic Router：决策与片段抽取要分开</h3>
+<p>转写描述了同时支持 <code>Choice/Noul/Score/Set/Span</code> 的实现思路：分类头给标签打分，片段头进一步定位原文中的实体或证据。[P，第 12–13 页，44:58–49:20]</p>
+<p><strong>补充理解</strong>：多标签可以用逐标签 sigmoid/Noul 建模，但是否需要标签依赖、互斥约束和结构化后处理，要看任务；不能说所有 <code>Set</code> 都只是若干独立判断。Span 抽取还必须定义边界、多个片段、无答案、重叠片段及偏移量，而非只给每个 token 一个相似度就结束。</p>
+<p><strong>版本提醒</strong>：vLLM Semantic Router 官方 README 同时列出了 Vela 2.0、Decision 2.0 和 Decision 3.0 的不同发布记录。转写所说的 Vela 具体 checkpoint、双头结构及其对应代码尚未一一核实，不能把不同系列或新旧版本混为一谈。[10]</p>
+<h3 id="57-路线比较">5.7 路线比较</h3>
+<table>
+<thead>
+<tr>
+<th>路线</th>
+<th>主要读出方式</th>
+<th>可能复用什么</th>
+<th>重点检查</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>候选 token logits</td>
+<td>受限 token 集的相对分数</td>
+<td>语言模型、前缀计算</td>
+<td>分词、集合外质量、模板偏差、校准</td>
+</tr>
+<tr>
+<td>CLM 双编码器</td>
+<td>状态与动作向量相似度</td>
+<td>固定候选向量</td>
+<td>假负例、候选描述变化、目标任务分布</td>
+</tr>
+<tr>
+<td>Kev 指针头</td>
+<td>问题表示与选项表示匹配</td>
+<td>满足实现条件的状态缓存</td>
+<td>注意力与递归状态隔离、位置编号</td>
+</tr>
+<tr>
+<td>Laya 双向编码</td>
+<td>候选位置表示的共享打分</td>
+<td>批处理；是否能共享状态须实测</td>
+<td>上下文长度、多语言、编码顺序</td>
+</tr>
+<tr>
+<td>联合特征/交叉注意力头</td>
+<td>证据检索加融合打分</td>
+<td>视具体实现而定</td>
+<td>候选交互、计算成本、源码版本</td>
+</tr>
+<tr>
+<td>分类加 Span 头</td>
+<td>标签概率与边界/片段预测</td>
+<td>共享主干</td>
+<td>边界与无答案处理、片段级校准</td>
+</tr>
+</tbody>
+</table>
+<p>这些项目证明“类型化决策”可以有多种实现，并不能揭示闭源 Jev 的真实内部结构。通用的文本标签分类、自然语言推断和相似度检索也早已存在；新的工程价值应从接口、训练数据、校准、缓存、评估和业务效果共同衡量。</p>
+<h2 id="6-并行隔离顺序需要分别测试">6. 并行、隔离、顺序：需要分别测试</h2>
+<p>“多个答案同时返回”至少可能指一份请求批量处理、一次模型前向，或共享前缀后分支计算。三者不是同义词。</p>
+<p>对纯因果注意力模型，希望每个问题只看到状态和自身时，逻辑上可以设计如下可见性：</p>
+<pre><code class="language-text">查询位置       状态 S     问题 Q1    问题 Q2
+状态 S         因果       不可见     不可见
+问题 Q1        可见       自身因果   不可见
+问题 Q2        可见       不可见     自身因果
+</code></pre>
+<p>还要处理位置编号、缓存分支和混合模型的递归状态。双向拼接模型中，状态表示可能依赖后面的题目，不能直接套用因果前缀缓存。</p>
+<p><strong>核查纠正</strong>：选项互换后答案变化，不能证明“问题之间没有隔离”。选项顺序敏感是同一题内部的问题；问题隔离应测试“固定 Q2，改变、增删或重排 Q1 后，Q2 是否变化”。即便不存在跨题注意力，位置编码、数值误差和批处理也应检查。[P，第 14–15 页，51:48–56:57]</p>
+<p>建议至少做四组配对测试：</p>
+<ol>
+<li>只改变选项顺序，映射回原标签后比较概率和选择。</li>
+<li>固定某题，改变其他题的内容、数量、顺序和长度。</li>
+<li>逐题请求与合并请求比较，同时测结果及实际端到端时延。</li>
+<li>保持事实不变，仅更换标签名称、模板或加入无关文本，检查稳健性。</li>
+</ol>
+<h2 id="7-用在智能体与安全护栏把决策分数接到明确策略上">7. 用在智能体与安全护栏：把决策分数接到明确策略上</h2>
+<h3 id="71-快慢模型协作">7.1 快慢模型协作</h3>
+<p>一种起点是：独立规则先校验动作合法性；决策模型为明确候选打分；满足经过验证的条件时自动执行；证据不足、超出候选集合或风险较高时补证据、升级强模型或转人工。</p>
+<p><code>max(p)</code>、分布熵、首二名差距和模型返回的 <code>confidence</code> 是不同信号，应在代表性数据上比较，而非任选一个当“正确率”。加入 <code>other</code> 或 <code>insufficient_evidence</code> 可以提供出口，但不能替代对分布外输入的测试。</p>
+<h3 id="72-按错误代价设置风险阈值">7.2 按错误代价设置风险阈值</h3>
+<p>令 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>p</mi><mo>&#x0003D;</mo><mi>P</mi><mo stretchy="false">&#x00028;</mo><mrow><mi mathvariant="normal">u</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">e</mi></mrow><mo>&#x02223;</mo><mi>x</mi><mo stretchy="false">&#x00029;</mo></mrow></math>，误拦安全操作的代价为 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>C</mi><mrow><mrow><mi mathvariant="normal">F</mi><mi mathvariant="normal">P</mi></mrow></mrow></msub></mrow></math>，漏放不安全操作的代价为 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>C</mi><mrow><mrow><mi mathvariant="normal">F</mi><mi mathvariant="normal">N</mi></mrow></mrow></msub></mrow></math>。若正确决策代价为零，则：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>R</mi><mo stretchy="false">&#x00028;</mo><mrow><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">w</mi></mrow><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mi>p</mi><msub><mi>C</mi><mrow><mrow><mi mathvariant="normal">F</mi><mi mathvariant="normal">N</mi></mrow></mrow></msub><mo>&#x0002C;</mo><mspace width="2em" /><mi>R</mi><mo stretchy="false">&#x00028;</mo><mrow><mi mathvariant="normal">b</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">k</mi></mrow><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mo stretchy="false">&#x00028;</mo><mn>1</mn><mo>&#x02212;</mo><mi>p</mi><mo stretchy="false">&#x00029;</mo><msub><mi>C</mi><mrow><mrow><mi mathvariant="normal">F</mi><mi mathvariant="normal">P</mi></mrow></mrow></msub><mo>&#x0002E;</mo></mrow></math></div>
+
+<p>在这些假设及概率可靠时，选择拦截的阈值为：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>p</mi><mo>&#x0003E;</mo><mfrac><mrow><msub><mi>C</mi><mrow><mrow><mi mathvariant="normal">F</mi><mi mathvariant="normal">P</mi></mrow></mrow></msub></mrow><mrow><msub><mi>C</mi><mrow><mrow><mi mathvariant="normal">F</mi><mi mathvariant="normal">P</mi></mrow></mrow></msub><mo>&#x0002B;</mo><msub><mi>C</mi><mrow><mrow><mi mathvariant="normal">F</mi><mi mathvariant="normal">N</mi></mrow></mrow></msub></mrow></mfrac><mo>&#x0002E;</mo></mrow></math></div>
+
+<p>例如漏放代价为 100、误拦为 1，阈值约 0.0099，远低于 0.5。真实业务可能有审核、延迟、不同风险等级和非零正确处理成本，应重新定义损失矩阵。</p>
+<p>权限、允许的资源、金额或操作范围等硬约束应由代码和授权规则执行；模型分数只提供风险信号。</p>
+<h3 id="73-失败后不能普遍直接执行第二名">7.3 失败后不能普遍“直接执行第二名”</h3>
+<p><strong>核查纠正</strong>：第一名失败通常提供了新信息，甚至已经产生部分副作用。此时需要更新状态，检查失败类别和操作幂等性，再决定是否重试。原排名不必适用于新状态。[P，第 1–2 页，01:48–02:22]</p>
+<p>只有在业务预先允许替代、状态未发生实质变化、失败不改变候选成功条件等前提下，预计算排名才能用于低成本回退。决策概率表示什么也要说清：动作是否合适，与动作执行后成功的概率并不天然相同。</p>
+<h3 id="74-多风险信号的组合">7.4 多风险信号的组合</h3>
+<p>危险指令、越权访问、意图偏离等风险可能同时出现，适合保留各自判断。若策略要求“任一严重违规即拦截”，直接对分数做加权平均可能把严重风险抵消掉，应使用明确的规则组合。</p>
+<p>状态压缩也会丢失证据。压缩后仍应保留授权边界、来源可信度、最近工具结果、未完成副作用和相关原文定位。低可信数据中的“请忽略规则”等内容是待分析数据，不能升级成分类器或执行器的新指令。</p>
+<h2 id="8-如何做可信的评测">8. 如何做可信的评测</h2>
+<h3 id="81-数据与基线">8.1 数据与基线</h3>
+<ul>
+<li>将训练、校准、验证策略和最终测试的用途分开，记录切分方法。</li>
+<li>覆盖真实的语言、类别比例、长上下文、候选数量、缺失证据、歧义、多标签和攻击样本；按会话、来源和时间防止泄漏。</li>
+<li>同一数据上比较规则/轻量分类器、受约束短输出的 LLM、token-logit 基线及决策模型；保持证据、候选定义和成功标准一致。</li>
+<li>独立记录人工标注、多个标注者的分歧与软标签含义；LLM 生成或裁判的标签不能冒充独立人工真值。</li>
+</ul>
+<h3 id="82-指标应覆盖决策概率和整个任务">8.2 指标应覆盖决策、概率和整个任务</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>推荐记录</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>分类/多标签</td>
+<td>accuracy、macro-F1、各类 precision/recall；少数风险类另报漏放率和误拦率</td>
+</tr>
+<tr>
+<td>概率</td>
+<td>NLL、明确归一化的 Brier、ECE/可靠性图；按类别、语言、长度和来源分组</td>
+</tr>
+<tr>
+<td>有序评分</td>
+<td>MAE、等级混淆矩阵、必要时 QWK；期望和等级分布分开评估</td>
+</tr>
+<tr>
+<td>Span/Box</td>
+<td>片段精确匹配/F1、边界偏移或 IoU 等定位指标，以及无答案识别</td>
+</tr>
+<tr>
+<td>升级策略</td>
+<td>自动处理覆盖率、被自动处理样本的错误率、强模型/人工比例及代价</td>
+</tr>
+<tr>
+<td>系统</td>
+<td>端到端 p50/p95、吞吐、输入长度、显存、缓存命中、重试及最终任务成功率</td>
+</tr>
+</tbody>
+</table>
+<p>阈值 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>&#x003B8;</mi></mrow></math> 对应的自动处理集合为 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>A</mi><mi>&#x003B8;</mi></msub></mrow></math>，可报告：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">v</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">e</mi></mrow><mo stretchy="false">&#x00028;</mo><mi>&#x003B8;</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mfrac><mrow><mo stretchy="false">&#x0007C;</mo><msub><mi>A</mi><mi>&#x003B8;</mi></msub><mo stretchy="false">&#x0007C;</mo></mrow><mrow><mi>n</mi></mrow></mfrac><mo>&#x0002C;</mo><mspace width="2em" /><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">k</mi></mrow><mo stretchy="false">&#x00028;</mo><mi>&#x003B8;</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mfrac><mrow><msub><mo>&#x02211;</mo><mrow><mi>i</mi><mo>&#x02208;</mo><msub><mi>A</mi><mi>&#x003B8;</mi></msub></mrow></msub><mrow><mn mathvariant="bold">1</mn></mrow><mo stretchy="false">[</mo><msub><mover><mi>y</mi><mo stretchy="false">&#x0005E;</mo></mover><mi>i</mi></msub><mo>&#x02260;</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="false">]</mo></mrow><mrow><mo stretchy="false">&#x0007C;</mo><msub><mi>A</mi><mi>&#x003B8;</mi></msub><mo stretchy="false">&#x0007C;</mo></mrow></mfrac><mo>&#x0002E;</mo></mrow></math></div>
+
+<p>集合为空时 risk 未定义，不能记成“零风险”。选择阈值后，要在独立测试集报告区间及样本数；不能只挑一个好看的阈值或分组平均数。</p>
+<p><strong>核查纠正</strong>：某个实验里较低升级阈值获得更高任务成功率，不足以推出“决策模型在简单任务上普遍更准”。还需看模型、数据、样本量、阈值选择和误差范围。[P，第 17 页，01:02:51]</p>
+<p>即便每步决策很准，多步任务仍可能积累错误。例如仅在独立且每步成功率都为 0.99 的理想假设下，100 步全成功的概率约为 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msup><mn>0.99</mn><mrow><mn>100</mn></mrow></msup><mo>&#x02248;</mo><mn>0.366</mn></mrow></math>；真实智能体通常还存在相关错误、恢复机制和状态漂移，必须测端到端结果。</p>
+<h3 id="83-有序-score-可以补充顺序敏感损失">8.3 有序 Score 可以补充顺序敏感损失</h3>
+<p>普通交叉熵不显式表达“错一档比错四档轻”。一种补充是对累计分布施加平方距离：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>L</mi><mrow><mrow><mi mathvariant="normal">o</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">d</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi></mrow></mrow></msub><mo>&#x0003D;</mo><munderover><mo>&#x02211;</mo><mrow><mi>r</mi><mo>&#x0003D;</mo><mn>0</mn></mrow><mrow><mi>K</mi><mo>&#x02212;</mo><mn>2</mn></mrow></munderover><msup><mrow><mo stretchy="true" fence="true" form="prefix">&#x00028;</mo><msub><mi>F</mi><mi>p</mi></msub><mo stretchy="false">&#x00028;</mo><mi>r</mi><mo stretchy="false">&#x00029;</mo><mo>&#x02212;</mo><msub><mi>F</mi><mi>y</mi></msub><mo stretchy="false">&#x00028;</mo><mi>r</mi><mo stretchy="false">&#x00029;</mo><mo stretchy="true" fence="true" form="postfix">&#x00029;</mo></mrow><mn>2</mn></msup><mo>&#x0002C;</mo></mrow></math></div>
+
+<p>其中 <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>F</mi><mi>p</mi></msub></mrow></math> 是预测等级累计分布，<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msub><mi>F</mi><mi>y</mi></msub></mrow></math> 是真实等级的累计分布。这是可选择的建模方案，不是对 Jev 或任何未核实训练配方的断言。</p>
+<p>把“确定黑、倾向黑、倾向白、确定白”直接映射为若干数值再做 MSE，也不自动完成概率校准：必须解释数值是事件频率、标注分歧还是主观严重程度，并在独立数据上验证。</p>
+<h2 id="9-可运行练习先亲手算出校准指标">9. 可运行练习：先亲手算出校准指标</h2>
+<p>仓库附带一个<strong>无第三方依赖、无 API 调用</strong>的演示：</p>
+<pre><code class="language-bash">python3 learning-notes/examples/jev_calibration_demo.py
+python3 learning-notes/examples/jev_calibration_demo.py --self-test
+</code></pre>
+<p><a href="https://github.com/oneDuter/oneDuter.github.io/blob/main/learning-notes/examples/jev_calibration_demo.py">查看校准演示源码</a>。它实现稳定 softmax、NLL、完整多分类 Brier、top-label ECE、覆盖率/风险，并只在合成校准集上搜索温度，最后在独立合成测试集上报告结果。示例用于理解公式与数据切分，<strong>不是 Jev、Kev 或其他真实模型的性能测试</strong>。</p>
+<p>本次运行使用 500 条合成校准样本、1000 条独立合成测试样本，固定随机种子，网格搜索得到温度约 2.9282。测试输出为：</p>
+<table>
+<thead>
+<tr>
+<th>指标（合成测试集）</th>
+<th>原始概率</th>
+<th>温度缩放后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>准确率</td>
+<td>0.718</td>
+<td>0.718</td>
+</tr>
+<tr>
+<td>NLL</td>
+<td>0.776865</td>
+<td>0.559623</td>
+</tr>
+<tr>
+<td>多分类 Brier（类别求和）</td>
+<td>0.428360</td>
+<td>0.375352</td>
+</tr>
+<tr>
+<td>top-label ECE（10 桶）</td>
+<td>0.164349</td>
+<td>0.028310</td>
+</tr>
+</tbody>
+</table>
+<p>这只展示本次合成实验；真实任务或分布漂移后不保证出现同样改善。</p>
+<p>学习时观察：</p>
+<ol>
+<li>正温度缩放后，逐样本 argmax 保持不变；准确率可以不变而 NLL/ECE 改变。</li>
+<li>Brier 的二分类与完整两类形式有两倍系数差异。</li>
+<li>提高置信门槛通常降低覆盖率，但风险是否下降需要数据证实。</li>
+<li>所有预测被拒绝时，风险输出为 <code>null</code>，不伪装成 0。</li>
+</ol>
+<h3 id="官方-sdk-的最小接口示例">官方 SDK 的最小接口示例</h3>
+<p>以下用法对照官方 SDK 源码编写，<strong>本次没有实际调用收费 API</strong>，也未进行模型效果测评。[1]</p>
+<pre><code class="language-python">from typesafe_sdk import Choice, Noul, Score, TypeSafeClient
+
+with TypeSafeClient() as client:  # 在运行环境中安全配置 TYPESAFE_API_KEY
+    result = client.system_one(
+        model=&quot;jev-latest&quot;,  # 做可复现实验时应固定实际模型版本
+        state={&quot;ticket&quot;: &quot;订单被重复扣款，请核查。&quot;},
+        questions={
+            &quot;category&quot;: Choice(
+                instructions=&quot;请选择最合适的工单类别。&quot;,
+                criteria={&quot;billing&quot;: &quot;账单或扣款&quot;, &quot;technical&quot;: &quot;技术故障&quot;, &quot;other&quot;: &quot;其余情况&quot;},
+            ),
+            &quot;sensitive&quot;: Noul(instructions=&quot;工单是否包含密码或完整支付卡号？&quot;),
+            &quot;urgency&quot;: Score(criteria=[&quot;可排队处理&quot;, &quot;今天应处理&quot;, &quot;需要立即处理&quot;]),
+        },
+    )
+
+print(result.choices[&quot;category&quot;].probabilities)
+print(result.nouls[&quot;sensitive&quot;].noul)   # 是“命题为真”的概率
+print(result.scores[&quot;urgency&quot;].score)  # 等级期望，不是概率
+</code></pre>
+<p>不同厂商的类似接口不必使用相同字段或题型命名。例如 OpenAI 官方 Python SDK 当前确有 <code>Decisions</code> 资源，源码说明支持 <code>gpt-6-luna</code>，题型文档用 predicate、choice、score。不能只把 TypeSafe 请求地址替换过去就假定兼容；分享中的具体发布日期仍需官方发布记录确认。[11]</p>
+<h2 id="10-原稿纠错与待核实事项索引">10. 原稿纠错与待核实事项索引</h2>
+<table>
+<thead>
+<tr>
+<th>定位</th>
+<th>原稿表述/线索</th>
+<th>本记录的处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第 2–3 页，03:24–08:05</td>
+<td><code>nor/no尔</code>、打分、3.37</td>
+<td>规范为 <code>Noul</code>；区分真概率和等级期望；指出 0–3 档不可能得到 3.37</td>
+</tr>
+<tr>
+<td>第 3–4 页，08:05–11:20</td>
+<td>每问一个 token，问题/选项数量不影响求值</td>
+<td>区分读出方式、解码步数与总计算量；额外问题仍有成本</td>
+</tr>
+<tr>
+<td>第 4 页，10:41</td>
+<td>固定单价、输出免费</td>
+<td>单价保留为未核实历史口径；输出免费仅按当前官方 SDK 的说明记录</td>
+</tr>
+<tr>
+<td>第 5 页，15:18–17:21</td>
+<td>RLCD 可能参考 RLCR</td>
+<td>找到 RLCR 原论文与奖励源码，但不据此断言闭源方法的来历</td>
+</tr>
+<tr>
+<td>第 6 页，18:16–20:42</td>
+<td>ECE 桶端点；温度只能盲调</td>
+<td>应比较桶内均值；温度可在校准集最小化 NLL</td>
+</tr>
+<tr>
+<td>第 6–7 页，22:20–24:17</td>
+<td><code>sameif</code>；字母一定为单 token</td>
+<td>规范为 SemIf；分词必须实测，候选归一化不自动校准</td>
+</tr>
+<tr>
+<td>第 7–8 页，24:17–29:09</td>
+<td><code>CRM</code>；InfoNCE 分母描述</td>
+<td>规范为 CLM；分母包含正例与负例；当前主干冻结、训练投影头</td>
+</tr>
+<tr>
+<td>第 8–9 页，29:09–32:20</td>
+<td><code>cube/keep</code></td>
+<td>对应 Kev；补充不同主干下的问题隔离与缓存条件</td>
+</tr>
+<tr>
+<td>第 9–10 页，32:20–36:08</td>
+<td>双向自回归、396M、噪声分布</td>
+<td>修正编码器术语；当前参数需按 checkpoint；噪声细节不臆补</td>
+</tr>
+<tr>
+<td>第 10–13 页，36:08–49:20</td>
+<td><code>cleft/cliff</code>、Vela 精确架构</td>
+<td>规范名称；标记模型卡与代码未逐项核验的部分</td>
+</tr>
+<tr>
+<td>第 14–15 页，54:27–56:57</td>
+<td>选项重排变化意味着问题未隔离</td>
+<td>区分选项顺序敏感与跨题信息泄漏，用不同实验检验</td>
+</tr>
+<tr>
+<td>第 16–17 页，01:00:00–01:05:19</td>
+<td>有序分数、低阈值更好、软标签校准</td>
+<td>补充有序损失、独立测试及软标签的语义前提</td>
+</tr>
+<tr>
+<td>第 18–20 页，01:08:53 以后</td>
+<td>Jevons 悖论、估值、市场因果</td>
+<td>杰文斯效应是需求扩张可能抵消效率收益的经济机制，并非必然规律；未核实估值和股价归因不作技术结论</td>
+</tr>
+</tbody>
+</table>
+<h2 id="11-我的后续学习路线">11. 我的后续学习路线</h2>
+<ul>
+<li>[ ] 跑通附带的校准演示，能解释各个指标的事件、范围和归一化。</li>
+<li>[ ] 为一个真实任务写清 <code>state</code>、候选定义、无答案出口与错误代价。</li>
+<li>[ ] 在相同数据与硬件口径下比较规则、受约束 LLM 和一种开源决策模型。</li>
+<li>[ ] 做选项重排、跨题隔离、长上下文和证据缺失测试，保存原始概率。</li>
+<li>[ ] 在独立校准集拟合温度，选策略阈值，再一次性读取最终测试结果。</li>
+<li>[ ] 用最终任务成功率、覆盖率/风险和真实账单判断是否值得接入。</li>
+<li>[ ] 补齐 Clef 原始模型卡、Vela 对应 checkpoint 及 Jev 官方方法披露后，再更新架构结论。</li>
+</ul>
+<h2 id="12-参考资料与证据边界">12. 参考资料与证据边界</h2>
+<p>访问及整理日期：2026-10-16。以下项目说明代表对应版本作者的公开信息，作者自报性能不等于本文复现实验；本记录没有训练或评测真实决策模型。动态主分支内容可能更新，关键实现优先给出提交固定的链接。</p>
+<ul>
+<li><strong>[P] 用户提供的 PDF</strong>：《Jev 技术分享与应用调研》，20 页会议转写，分享日期 2026-10-15。定位使用 PDF 页码与发言时间；未附完整原始幻灯片和一手参考文献。</li>
+<li><strong>[1] TypeSafe 官方 Python SDK</strong>：<a href="https://github.com/typesafe-ai/typesafe-sdk-python/blob/f36e68549ceca3191e5791e5f99ea1baa1a258b5/src/typesafe_sdk/_core/question_types.py">question_types.py</a>、<a href="https://github.com/typesafe-ai/typesafe-sdk-python/blob/f36e68549ceca3191e5791e5f99ea1baa1a258b5/src/typesafe_sdk/_schemas/models.py">API 数据模型</a>。用于核验题型、字段、期望得分、Box 与用量语义。</li>
+<li><strong>[2] TypeSafe 官方使用指南</strong>：<a href="https://github.com/typesafe-ai/skills/blob/65a39f393687675ce170e6094757de20370365b9/skills/typesafe-ai/SKILL.md">skills/typesafe-ai/SKILL.md</a>。这里作为研究资料引用；重点是并行独立问题、分布集中程度、目标域评估与策略组合。</li>
+<li><strong>[3] Damani 等，2025</strong>：<em>Beyond Binary Rewards: Training LMs to Reason about Their Uncertainty</em>，<a href="https://arxiv.org/abs/2507.16806">论文 arXiv:2507.16806</a>、<a href="https://github.com/damanimehul/RLCR/tree/be2624b1753d738b9552df4dd6d50ac33b3668ee">官方代码与说明</a>、<a href="https://github.com/damanimehul/RLCR/blob/be2624b1753d738b9552df4dd6d50ac33b3668ee/reward_fns.py">奖励函数</a>。本次直接核验的是官方 README 和奖励代码。</li>
+<li><strong>[4] Guo、Pleiss、Sun、Weinberger，2017</strong>：<em>On Calibration of Modern Neural Networks</em>，<a href="https://arxiv.org/abs/1706.04599">论文 arXiv:1706.04599</a>、<a href="https://github.com/gpleiss/temperature_scaling">作者提供的温度缩放说明</a>。旧代码已停止维护，本文不建议直接照搬其旧环境。</li>
+<li><strong>[5] scikit-learn 校准文档</strong>：<a href="https://github.com/scikit-learn/scikit-learn/blob/main/doc/modules/calibration.rst">文档源码</a>。用于核对温度拟合、独立校准数据和 Brier 分解的限制。</li>
+<li><strong>[6] SemIf</strong>：<a href="https://github.com/TheoLeeCJ/SemIf-OpenJev/blob/23cf1f39fc9534fe81437200959b6dfc7106e45a/README.md">项目 README</a>。原项目路径可能重定向至新名称；参考其 frozen-model 读出方式与校准更新。</li>
+<li><strong>[7] Contrastive-LM / CLM</strong>：<a href="https://github.com/Contrastive-LM/CLM/blob/d5f9ef0fd9bde185df0ceaad4f4ecc6cfe8c34f6/README.md">架构与训练说明</a>。包括冻结主干、投影头、双向 InfoNCE 和困难负例。</li>
+<li><strong>[8] Jared Palmer / Kev</strong>：<a href="https://github.com/jaredpalmer/kev/blob/1f04cfa28e6a708485b28a9585010b9e436b776e/README.md">固定版本 README</a>。用于核验指针头、不同主干的隔离、缓存与温度校准。</li>
+<li><strong>[9] Laya</strong>：<a href="https://github.com/NandhaKishorM/laya/blob/4ac226d5ee88ed6df8db288a05c766d7a34ee682/README.md">固定版本 README</a>。使用其模型家族与 checkpoint 信息，未把自报毫秒数作为本次测量。</li>
+<li><strong>[10] vLLM Semantic Router</strong>：<a href="https://github.com/vllm-project/semantic-router">官方 README</a>。用于区分 Vela 与 Decision 系列发布记录；不作为转写中某个 Span head 的精确结构证明。</li>
+<li><strong>[11] OpenAI 官方 Python SDK</strong>：<a href="https://github.com/openai/openai-python/blob/230a923faba5574ebdc5b45a505a26b6bad79f61/src/openai/resources/decisions.py">Decisions 资源实现</a>。核验接口存在、题型描述与当前模型限制，不用于证明具体发布日。</li>
+<li><strong>[12] Clef 原始资料入口（待直接核验）</strong>：<a href="https://huggingface.co/Cloudflare/clef">Cloudflare 模型卡</a>、<a href="https://blog.cloudflare.com/clef-decision-models">官方介绍</a>。本次网络未能访问原文；只保留可追溯入口，不据此引用未读的实验数值或精确实现。</li>
+</ul>
+<p>学习记录的核心收获：把概率的事件、答案空间、校准数据和执行策略定义清楚，再讨论模型速度与成本；对闭源细节、转写错误和版本差异，保留证据边界。</p></article></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230511141236.png" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">早起星人</div><div class="author-info__description">true</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">46</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/oneDuter"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my study Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline">文章目录</div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%85%88%E5%BB%BA%E7%AB%8B%E6%95%B4%E4%BD%93%E8%AE%A4%E8%AF%86"><span class="toc-text">1. 先建立整体认识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E5%85%88%E5%8C%BA%E5%88%86%E9%A2%98%E5%9E%8B%E5%86%8D%E8%AE%A8%E8%AE%BA%E7%BD%AE%E4%BF%A1%E5%BA%A6"><span class="toc-text">2. 输入输出：先区分题型，再讨论置信度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-noul-%E7%9A%84-004-%E5%88%B0%E5%BA%95%E8%A1%A8%E7%A4%BA%E4%BB%80%E4%B9%88"><span class="toc-text">2.1 Noul 的 0.04 到底表示什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-score-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E6%9C%89%E5%B0%8F%E6%95%B0"><span class="toc-text">2.2 Score 为什么会有小数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E7%9B%B8%E6%AF%94%E6%96%87%E6%9C%AC%E7%94%9F%E6%88%90%E7%9C%9F%E6%AD%A3%E8%8A%82%E7%9C%81%E4%BA%86%E4%BB%80%E4%B9%88"><span class="toc-text">3. 相比文本生成，真正节省了什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%A6%82%E7%8E%87%E5%87%86%E7%A1%AE%E7%8E%87%E4%B8%8E%E6%A0%A1%E5%87%86%E4%B8%89%E4%B8%AA%E6%A6%82%E5%BF%B5%E4%B8%8D%E8%A6%81%E6%B7%B7%E5%9C%A8%E4%B8%80%E8%B5%B7"><span class="toc-text">4. 概率、准确率与校准：三个概念不要混在一起</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#41-ece%E6%AF%8F%E4%B8%AA%E5%8C%BA%E9%97%B4%E6%AF%94%E8%BE%83%E5%B9%B3%E5%9D%87%E7%BD%AE%E4%BF%A1%E5%BA%A6%E4%B8%8E%E5%AE%9E%E9%99%85%E6%AD%A3%E7%A1%AE%E7%8E%87"><span class="toc-text">4.1 ECE：每个区间比较平均置信度与实际正确率</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#42-brier%E5%AE%8C%E6%95%B4%E7%B1%BB%E5%88%AB%E5%88%86%E5%B8%83%E4%B8%8E%E6%89%80%E9%80%89%E7%AD%94%E6%A1%88%E6%AD%A3%E7%A1%AE%E6%80%A7%E6%98%AF%E4%B8%A4%E7%A7%8D%E4%B8%8D%E5%90%8C%E4%BB%BB%E5%8A%A1"><span class="toc-text">4.2 Brier：完整类别分布与所选答案正确性是两种不同任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#43-%E6%B8%A9%E5%BA%A6%E7%BC%A9%E6%94%BE%E5%8F%AF%E4%BB%A5%E7%94%A8%E5%B8%A6%E6%A0%87%E7%AD%BE%E6%95%B0%E6%8D%AE%E6%8B%9F%E5%90%88%E5%B9%B6%E9%9D%9E%E5%8F%AA%E8%83%BD%E7%9B%B2%E8%B0%83"><span class="toc-text">4.3 温度缩放可以用带标签数据拟合，并非只能“盲调”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#44-rlcr-%E5%92%8C-jev-%E7%9A%84-rlcd%E6%98%8E%E7%A1%AE%E5%B7%B2%E7%9F%A5%E4%B8%8E%E6%9C%AA%E7%9F%A5"><span class="toc-text">4.4 RLCR 和 Jev 的 RLCD：明确已知与未知</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E5%85%AD%E6%9D%A1%E5%AE%9E%E7%8E%B0%E8%B7%AF%E7%BA%BF%E6%AF%94%E8%BE%83%E8%AE%A1%E7%AE%97%E6%96%B9%E5%BC%8F%E4%B8%8D%E6%8A%8A%E5%BC%80%E6%BA%90%E6%96%B9%E6%A1%88%E5%BD%93%E4%BD%9C%E9%97%AD%E6%BA%90%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0"><span class="toc-text">5. 六条实现路线：比较计算方式，不把开源方案当作闭源内部实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#51-semif%E8%AF%BB%E5%8F%96%E5%80%99%E9%80%89-token-logits-%E7%9A%84%E4%BD%8E%E6%88%90%E6%9C%AC%E5%9F%BA%E7%BA%BF"><span class="toc-text">5.1 SemIf：读取候选 token logits 的低成本基线</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#52-clm%E5%8F%8C%E7%BC%96%E7%A0%81%E5%99%A8%E4%B8%8E%E5%AF%B9%E6%AF%94%E5%AD%A6%E4%B9%A0"><span class="toc-text">5.2 CLM：双编码器与对比学习</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#53-kev%E5%8F%AF%E5%8F%98%E5%80%99%E9%80%89%E7%9A%84%E6%8C%87%E9%92%88%E5%A4%B4%E4%B8%8E%E9%97%AE%E9%A2%98%E9%9A%94%E7%A6%BB"><span class="toc-text">5.3 Kev：可变候选的指针头与问题隔离</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#54-laya%E5%8F%8C%E5%90%91%E7%BC%96%E7%A0%81%E4%B8%8E%E5%80%99%E9%80%89%E4%BD%8D%E7%BD%AE%E6%89%93%E5%88%86"><span class="toc-text">5.4 Laya：双向编码与候选位置打分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#55-clef%E8%81%94%E5%90%88%E5%80%99%E9%80%89%E4%B8%8E%E9%97%AE%E9%A2%98%E7%89%B9%E5%BE%81%E7%9A%84%E6%89%93%E5%88%86%E8%AE%BE%E8%AE%A1"><span class="toc-text">5.5 Clef：联合候选与问题特征的打分设计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#56-vela-vllm-semantic-router%E5%86%B3%E7%AD%96%E4%B8%8E%E7%89%87%E6%AE%B5%E6%8A%BD%E5%8F%96%E8%A6%81%E5%88%86%E5%BC%80"><span class="toc-text">5.6 Vela / vLLM Semantic Router：决策与片段抽取要分开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#57-%E8%B7%AF%E7%BA%BF%E6%AF%94%E8%BE%83"><span class="toc-text">5.7 路线比较</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%B9%B6%E8%A1%8C%E9%9A%94%E7%A6%BB%E9%A1%BA%E5%BA%8F%E9%9C%80%E8%A6%81%E5%88%86%E5%88%AB%E6%B5%8B%E8%AF%95"><span class="toc-text">6. 并行、隔离、顺序：需要分别测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E7%94%A8%E5%9C%A8%E6%99%BA%E8%83%BD%E4%BD%93%E4%B8%8E%E5%AE%89%E5%85%A8%E6%8A%A4%E6%A0%8F%E6%8A%8A%E5%86%B3%E7%AD%96%E5%88%86%E6%95%B0%E6%8E%A5%E5%88%B0%E6%98%8E%E7%A1%AE%E7%AD%96%E7%95%A5%E4%B8%8A"><span class="toc-text">7. 用在智能体与安全护栏：把决策分数接到明确策略上</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#71-%E5%BF%AB%E6%85%A2%E6%A8%A1%E5%9E%8B%E5%8D%8F%E4%BD%9C"><span class="toc-text">7.1 快慢模型协作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#72-%E6%8C%89%E9%94%99%E8%AF%AF%E4%BB%A3%E4%BB%B7%E8%AE%BE%E7%BD%AE%E9%A3%8E%E9%99%A9%E9%98%88%E5%80%BC"><span class="toc-text">7.2 按错误代价设置风险阈值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#73-%E5%A4%B1%E8%B4%A5%E5%90%8E%E4%B8%8D%E8%83%BD%E6%99%AE%E9%81%8D%E7%9B%B4%E6%8E%A5%E6%89%A7%E8%A1%8C%E7%AC%AC%E4%BA%8C%E5%90%8D"><span class="toc-text">7.3 失败后不能普遍“直接执行第二名”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#74-%E5%A4%9A%E9%A3%8E%E9%99%A9%E4%BF%A1%E5%8F%B7%E7%9A%84%E7%BB%84%E5%90%88"><span class="toc-text">7.4 多风险信号的组合</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E5%A6%82%E4%BD%95%E5%81%9A%E5%8F%AF%E4%BF%A1%E7%9A%84%E8%AF%84%E6%B5%8B"><span class="toc-text">8. 如何做可信的评测</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#81-%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%9F%BA%E7%BA%BF"><span class="toc-text">8.1 数据与基线</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#82-%E6%8C%87%E6%A0%87%E5%BA%94%E8%A6%86%E7%9B%96%E5%86%B3%E7%AD%96%E6%A6%82%E7%8E%87%E5%92%8C%E6%95%B4%E4%B8%AA%E4%BB%BB%E5%8A%A1"><span class="toc-text">8.2 指标应覆盖决策、概率和整个任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#83-%E6%9C%89%E5%BA%8F-score-%E5%8F%AF%E4%BB%A5%E8%A1%A5%E5%85%85%E9%A1%BA%E5%BA%8F%E6%95%8F%E6%84%9F%E6%8D%9F%E5%A4%B1"><span class="toc-text">8.3 有序 Score 可以补充顺序敏感损失</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E5%8F%AF%E8%BF%90%E8%A1%8C%E7%BB%83%E4%B9%A0%E5%85%88%E4%BA%B2%E6%89%8B%E7%AE%97%E5%87%BA%E6%A0%A1%E5%87%86%E6%8C%87%E6%A0%87"><span class="toc-text">9. 可运行练习：先亲手算出校准指标</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%98%E6%96%B9-sdk-%E7%9A%84%E6%9C%80%E5%B0%8F%E6%8E%A5%E5%8F%A3%E7%A4%BA%E4%BE%8B"><span class="toc-text">官方 SDK 的最小接口示例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E5%8E%9F%E7%A8%BF%E7%BA%A0%E9%94%99%E4%B8%8E%E5%BE%85%E6%A0%B8%E5%AE%9E%E4%BA%8B%E9%A1%B9%E7%B4%A2%E5%BC%95"><span class="toc-text">10. 原稿纠错与待核实事项索引</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E6%88%91%E7%9A%84%E5%90%8E%E7%BB%AD%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF"><span class="toc-text">11. 我的后续学习路线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99%E4%B8%8E%E8%AF%81%E6%8D%AE%E8%BE%B9%E7%95%8C"><span class="toc-text">12. 参考资料与证据边界</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/01/19/%E6%8A%80%E6%9C%AF%E6%A0%88/RabbtiMQ/" title="RabbitMQ"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/Mybatis-plus.png" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="RabbitMQ"/></a><div class="content"><a class="title" href="/2024/01/19/%E6%8A%80%E6%9C%AF%E6%A0%88/RabbtiMQ/" title="RabbitMQ">RabbitMQ</a><time datetime="2024-01-18T16:00:00.000Z" title="Created 2024-01-19 00:00:00">2024-01-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/19/%E6%8A%80%E6%9C%AF%E6%A0%88/MQ%E5%9F%BA%E7%A1%80/" title="RabbitMQ"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/Mybatis-plus.png" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="RabbitMQ"/></a><div class="content"><a class="title" href="/2024/01/19/%E6%8A%80%E6%9C%AF%E6%A0%88/MQ%E5%9F%BA%E7%A1%80/" title="RabbitMQ">RabbitMQ</a><time datetime="2024-01-18T16:00:00.000Z" title="Created 2024-01-19 00:00:00">2024-01-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/23/Java/Docker/" title="Docker知识总结"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/spring-boot.jpg" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="Docker知识总结"/></a><div class="content"><a class="title" href="/2023/12/23/Java/Docker/" title="Docker知识总结">Docker知识总结</a><time datetime="2023-12-22T16:00:00.000Z" title="Created 2023-12-23 00:00:00">2023-12-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/22/Java/SpringCloud%E9%9D%A2%E8%AF%95%E7%AF%87/" title="SpringCloud面试篇"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/spring-boot.jpg" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="SpringCloud面试篇"/></a><div class="content"><a class="title" href="/2023/12/22/Java/SpringCloud%E9%9D%A2%E8%AF%95%E7%AF%87/" title="SpringCloud面试篇">SpringCloud面试篇</a><time datetime="2023-12-21T16:00:00.000Z" title="Created 2023-12-22 00:00:00">2023-12-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/22/Java/SpringCloud%E5%BA%94%E7%94%A8%E7%AF%87/" title="SpringCloud应用篇"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/spring-boot.jpg" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="SpringCloud应用篇"/></a><div class="content"><a class="title" href="/2023/12/22/Java/SpringCloud%E5%BA%94%E7%94%A8%E7%AF%87/" title="SpringCloud应用篇">SpringCloud应用篇</a><time datetime="2023-12-21T16:00:00.000Z" title="Created 2023-12-22 00:00:00">2023-12-22</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By 早起星人</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container').forEach(node => {
+            if (node.hasAttribute('display')) {
+              btf.wrap(node, 'div', { class: 'mathjax-overflow' })
+            } else {
+              btf.wrap(node, 'span', { class: 'mathjax-overflow' })
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
