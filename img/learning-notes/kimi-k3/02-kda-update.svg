@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1008pt" height="540pt" viewBox="0 0 1008 540" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-10-16T16:14:52.808730</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.9.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 540 
+L 1008 540 
+L 1008 0 
+L 0 0 
+z
+" style="fill: #f6f8fc"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 48.114 282.2175 
+L 245.106 282.2175 
+Q 253.314 282.2175 253.314 275.043214 
+L 253.314 177.5925 
+Q 253.314 170.418214 245.106 170.418214 
+L 48.114 170.418214 
+Q 39.906 170.418214 39.906 177.5925 
+L 39.906 275.043214 
+Q 39.906 282.2175 48.114 282.2175 
+z
+" clip-path="url(#pdb85f6d809)" style="fill: #e6f3f1; stroke: #087f83; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 280.674 282.2175 
+L 477.666 282.2175 
+Q 485.874 282.2175 485.874 275.043214 
+L 485.874 177.5925 
+Q 485.874 170.418214 477.666 170.418214 
+L 280.674 170.418214 
+Q 272.466 170.418214 272.466 177.5925 
+L 272.466 275.043214 
+Q 272.466 282.2175 280.674 282.2175 
+z
+" clip-path="url(#pdb85f6d809)" style="fill: #e6f3f1; stroke: #087f83; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 513.234 282.2175 
+L 710.226 282.2175 
+Q 718.434 282.2175 718.434 275.043214 
+L 718.434 177.5925 
+Q 718.434 170.418214 710.226 170.418214 
+L 513.234 170.418214 
+Q 505.026 170.418214 505.026 177.5925 
+L 505.026 275.043214 
+Q 505.026 282.2175 513.234 282.2175 
+z
+" clip-path="url(#pdb85f6d809)" style="fill: #e6f3f1; stroke: #087f83; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 745.794 282.2175 
+L 942.786 282.2175 
+Q 950.994 282.2175 950.994 275.043214 
+L 950.994 177.5925 
+Q 950.994 170.418214 942.786 170.418214 
+L 745.794 170.418214 
+Q 737.586 170.418214 737.586 177.5925 
+L 737.586 275.043214 
+Q 737.586 282.2175 745.794 282.2175 
+z
+" clip-path="url(#pdb85f6d809)" style="fill: #e6f3f1; stroke: #087f83; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 256.339731 226.317857 
+Q 262.888957 226.317857 267.537524 226.317857 
+" clip-path="url(#pdb85f6d809)" style="fill: none; stroke: #68788b; stroke-width: 1.7; stroke-linecap: round"/>
+    <path d="M 260.337524 222.717857 
+L 267.537524 226.317857 
+L 260.337524 229.917857 
+z
+" clip-path="url(#pdb85f6d809)" style="fill: #68788b; stroke: #68788b; stroke-width: 1.7; stroke-linecap: round"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 488.899731 226.317857 
+Q 495.448957 226.317857 500.097524 226.317857 
+" clip-path="url(#pdb85f6d809)" style="fill: none; stroke: #68788b; stroke-width: 1.7; stroke-linecap: round"/>
+    <path d="M 492.897524 222.717857 
+L 500.097524 226.317857 
+L 492.897524 229.917857 
+z
+" clip-path="url(#pdb85f6d809)" style="fill: #68788b; stroke: #68788b; stroke-width: 1.7; stroke-linecap: round"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 721.459731 226.317857 
+Q 728.008957 226.317857 732.657524 226.317857 
+" clip-path="url(#pdb85f6d809)" style="fill: none; stroke: #68788b; stroke-width: 1.7; stroke-linecap: round"/>
+    <path d="M 725.457524 222.717857 
+L 732.657524 226.317857 
+L 725.457524 229.917857 
+z
+" clip-path="url(#pdb85f6d809)" style="fill: #68788b; stroke: #68788b; stroke-width: 1.7; stroke-linecap: round"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 78.894 476.521071 
+L 922.266 476.521071 
+Q 930.474 476.521071 930.474 469.346786 
+L 930.474 404.778214 
+Q 930.474 397.603929 922.266 397.603929 
+L 78.894 397.603929 
+Q 70.686 397.603929 70.686 404.778214 
+L 70.686 469.346786 
+Q 70.686 476.521071 78.894 476.521071 
+z
+" clip-path="url(#pdb85f6d809)" style="fill: #e8effa; stroke: #3368b3; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_1">
+    <text style="fill: #142e47; font: 18px 'Heiti TC', 'DejaVu Sans'" transform="translate(119.61 219.899662)">旧记忆</text>
+    <text style="fill: #142e47; font: 18px 'Heiti TC', 'DejaVu Sans'" transform="translate(111.141562 244.922615)">S = [2, 4]</text>
+   </g>
+   <g id="text_2">
+    <text style="fill: #142e47; font: 18px 'Heiti TC', 'DejaVu Sans'" transform="translate(334.17 219.899662)">逐通道衰减</text>
+    <text style="fill: #142e47; font: 18px 'Heiti TC', 'DejaVu Sans'" transform="translate(334.043437 244.922615)">A = [1.6, 2]</text>
+   </g>
+   <g id="text_3">
+    <text style="fill: #142e47; font: 18px 'Heiti TC', 'DejaVu Sans'" transform="translate(566.73 207.403443)">读取旧预测</text>
+    <text style="fill: #142e47; font: 18px 'Heiti TC', 'DejaVu Sans'" transform="translate(576.225 232.426396)">k = [1, 0]</text>
+    <text style="fill: #142e47; font: 18px 'Heiti TC', 'DejaVu Sans'" transform="translate(562.310156 257.418834)">预测值 = 1.6</text>
+   </g>
+   <g id="text_4">
+    <text style="fill: #142e47; font: 18px 'Heiti TC', 'DejaVu Sans'" transform="translate(799.29 219.816834)">修正后记忆</text>
+    <text style="fill: #142e47; font: 18px 'Heiti TC', 'DejaVu Sans'" transform="translate(790.091719 245.005443)">S 新 = [2.3, 2]</text>
+   </g>
+   <g id="text_5">
+    <text style="fill: #68788b; font: 16px 'Heiti TC', 'DejaVu Sans'; text-anchor: middle" x="262.548" y="321.421429" transform="rotate(-0 262.548 321.421429)">α = [0.8, 0.5]</text>
+   </g>
+   <g id="text_6">
+    <text style="fill: #087f83; font: 18px 'Heiti TC', 'DejaVu Sans'" transform="translate(505.74375 321.915134)">目标 v = 3；误差 e = 3 − 1.6 = 1.4</text>
+    <text style="fill: #087f83; font: 18px 'Heiti TC', 'DejaVu Sans'" transform="translate(508.677187 346.178571)">β = 0.5；只沿当前键方向写入 0.7</text>
+   </g>
+   <g id="text_7">
+    <text style="fill: #142e47; font: 19px 'Heiti TC', 'DejaVu Sans'" transform="translate(275.918359 431.099617)">A = Diag(α) S 旧       e = v − Aᵀ k       S 新 = A + β k eᵀ</text>
+    <text style="fill: #142e47; font: 19px 'Heiti TC', 'DejaVu Sans'" transform="translate(327.87 457.655383)">最后用当前查询 q 从更新后的 S 读取输出</text>
+   </g>
+  </g>
+  <g id="text_8">
+   <text style="fill: #142e47; font: 700 25px 'Heiti TC', 'DejaVu Sans'; text-anchor: start" x="35.28" y="52.65" transform="rotate(-0 35.28 52.65)">02  KDA：按误差修正记忆</text>
+  </g>
+  <g id="text_9">
+   <text style="fill: #68788b; font: 14px 'Heiti TC', 'DejaVu Sans'; text-anchor: start" x="35.28" y="76.406875" transform="rotate(-0 35.28 76.406875)">教学例子：单头、两键通道、单值通道；忽略卷积与输出门。对应 Eq.1，p.4</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pdb85f6d809">
+   <rect x="25.2" y="91.8" width="957.6" height="418.5"/>
+  </clipPath>
+ </defs>
+</svg>

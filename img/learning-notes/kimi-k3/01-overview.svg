@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1008pt" height="540pt" viewBox="0 0 1008 540" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-10-16T16:14:52.675634</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.9.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 540 
+L 1008 540 
+L 1008 0 
+L 0 0 
+z
+" style="fill: #f6f8fc"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 48.114 192.538929 
+L 197.226 192.538929 
+Q 205.434 192.538929 205.434 185.364643 
+L 205.434 129.763929 
+Q 205.434 122.589643 197.226 122.589643 
+L 48.114 122.589643 
+Q 39.906 122.589643 39.906 129.763929 
+L 39.906 185.364643 
+Q 39.906 192.538929 48.114 192.538929 
+z
+" clip-path="url(#p6cd34582af)" style="fill: #e8effa; stroke: #3368b3; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 208.457644 157.564286 
+Q 225.270857 157.564286 240.183412 157.564286 
+" clip-path="url(#p6cd34582af)" style="fill: none; stroke: #68788b; stroke-width: 1.7; stroke-linecap: round"/>
+    <path d="M 232.983412 153.964286 
+L 240.183412 157.564286 
+L 232.983412 161.164286 
+z
+" clip-path="url(#p6cd34582af)" style="fill: #68788b; stroke: #68788b; stroke-width: 1.7; stroke-linecap: round"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 253.314 192.538929 
+L 463.986 192.538929 
+Q 472.194 192.538929 472.194 185.364643 
+L 472.194 129.763929 
+Q 472.194 122.589643 463.986 122.589643 
+L 253.314 122.589643 
+Q 245.106 122.589643 245.106 129.763929 
+L 245.106 185.364643 
+Q 245.106 192.538929 253.314 192.538929 
+z
+" clip-path="url(#p6cd34582af)" style="fill: #e8effa; stroke: #3368b3; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 475.217644 157.564286 
+Q 492.030857 157.564286 506.943412 157.564286 
+" clip-path="url(#p6cd34582af)" style="fill: none; stroke: #68788b; stroke-width: 1.7; stroke-linecap: round"/>
+    <path d="M 499.743412 153.964286 
+L 506.943412 157.564286 
+L 499.743412 161.164286 
+z
+" clip-path="url(#p6cd34582af)" style="fill: #68788b; stroke: #68788b; stroke-width: 1.7; stroke-linecap: round"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 520.074 192.538929 
+L 935.946 192.538929 
+Q 944.154 192.538929 944.154 185.364643 
+L 944.154 129.763929 
+Q 944.154 122.589643 935.946 122.589643 
+L 520.074 122.589643 
+Q 511.866 122.589643 511.866 129.763929 
+L 511.866 185.364643 
+Q 511.866 192.538929 520.074 192.538929 
+z
+" clip-path="url(#p6cd34582af)" style="fill: #e6f3f1; stroke: #087f83; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 48.114 386.8425 
+L 323.766 386.8425 
+Q 331.974 386.8425 331.974 379.668214 
+L 331.974 252.324643 
+Q 331.974 245.150357 323.766 245.150357 
+L 48.114 245.150357 
+Q 39.906 245.150357 39.906 252.324643 
+L 39.906 379.668214 
+Q 39.906 386.8425 48.114 386.8425 
+z
+" clip-path="url(#p6cd34582af)" style="fill: #e8effa; stroke: #3368b3; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 185.94 207.393985 
+Q 185.94 223.33064 185.94 237.366636 
+" clip-path="url(#p6cd34582af)" style="fill: none; stroke: #3368b3; stroke-width: 1.7; stroke-linecap: round"/>
+    <path d="M 189.54 230.166636 
+L 185.94 237.366636 
+L 182.34 230.166636 
+z
+" clip-path="url(#p6cd34582af)" style="fill: #3368b3; stroke: #3368b3; stroke-width: 1.7; stroke-linecap: round"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 366.174 386.8425 
+L 641.826 386.8425 
+Q 650.034 386.8425 650.034 379.668214 
+L 650.034 252.324643 
+Q 650.034 245.150357 641.826 245.150357 
+L 366.174 245.150357 
+Q 357.966 245.150357 357.966 252.324643 
+L 357.966 379.668214 
+Q 357.966 386.8425 366.174 386.8425 
+z
+" clip-path="url(#p6cd34582af)" style="fill: #e6f3f1; stroke: #087f83; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 504 207.393985 
+Q 504 223.33064 504 237.366636 
+" clip-path="url(#p6cd34582af)" style="fill: none; stroke: #087f83; stroke-width: 1.7; stroke-linecap: round"/>
+    <path d="M 507.6 230.166636 
+L 504 237.366636 
+L 500.4 230.166636 
+z
+" clip-path="url(#p6cd34582af)" style="fill: #087f83; stroke: #087f83; stroke-width: 1.7; stroke-linecap: round"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 684.234 386.8425 
+L 959.886 386.8425 
+Q 968.094 386.8425 968.094 379.668214 
+L 968.094 252.324643 
+Q 968.094 245.150357 959.886 245.150357 
+L 684.234 245.150357 
+Q 676.026 245.150357 676.026 252.324643 
+L 676.026 379.668214 
+Q 676.026 386.8425 684.234 386.8425 
+z
+" clip-path="url(#p6cd34582af)" style="fill: #fff2dc; stroke: #bf7b13; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 822.06 207.393985 
+Q 822.06 223.33064 822.06 237.366636 
+" clip-path="url(#p6cd34582af)" style="fill: none; stroke: #bf7b13; stroke-width: 1.7; stroke-linecap: round"/>
+    <path d="M 825.66 230.166636 
+L 822.06 237.366636 
+L 818.46 230.166636 
+z
+" clip-path="url(#p6cd34582af)" style="fill: #bf7b13; stroke: #bf7b13; stroke-width: 1.7; stroke-linecap: round"/>
+   </g>
+   <g id="patch_13">
+    <path d="M 65.214 488.478214 
+L 918.846 488.478214 
+Q 927.054 488.478214 927.054 481.303929 
+L 927.054 431.681786 
+Q 927.054 424.5075 918.846 424.5075 
+L 65.214 424.5075 
+Q 57.006 424.5075 57.006 431.681786 
+L 57.006 481.303929 
+Q 57.006 488.478214 65.214 488.478214 
+z
+" clip-path="url(#p6cd34582af)" style="fill: #e6f3f1; stroke: #087f83; stroke-width: 1.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_1">
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'; text-anchor: middle" x="122.67" y="163.531551" transform="rotate(-0 122.67 163.531551)">文字 / 图像 / 视频</text>
+   </g>
+   <g id="text_2">
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'" transform="translate(307.65 151.534333)">共享表示空间</text>
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'" transform="translate(258.059141 175.138301)">视觉：MoonViT-V2 + MLP</text>
+   </g>
+   <g id="text_3">
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'; text-anchor: middle" x="728.01" y="163.336317" transform="rotate(-0 728.01 163.336317)">23 × [3 KDA + 1 Gated MLA] + 末尾 MLA</text>
+   </g>
+   <g id="text_4">
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'" transform="translate(151.94 286.345241)">序列方向</text>
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'" transform="translate(185.94 309.94921)"/>
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'" transform="translate(108.8025 333.553179)">KDA：更新压缩记忆</text>
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'" transform="translate(108.410703 357.157147)">MLA：全局内容交互</text>
+   </g>
+   <g id="text_5">
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'" transform="translate(470 286.279366)">深度方向</text>
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'" transform="translate(504 309.883335)"/>
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'" transform="translate(413.278437 333.619054)">AttnRes：选择早期表示</text>
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'" transform="translate(427.5 357.223022)">块内累加，块间加权</text>
+   </g>
+   <g id="text_6">
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'" transform="translate(788.06 286.345241)">通道方向</text>
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'" transform="translate(822.06 309.94921)"/>
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'" transform="translate(749.851172 333.553179)">Stable LatentMoE</text>
+    <text style="fill: #142e47; font: 17px 'Heiti TC', 'DejaVu Sans'" transform="translate(735.527344 357.157147)">896 选 16 + 2 共享专家</text>
+   </g>
+   <g id="text_7">
+    <text style="fill: #142e47; font: 18px 'Heiti TC', 'DejaVu Sans'; text-anchor: middle" x="492.03" y="462.631138" transform="rotate(-0 492.03 462.631138)">容量与长任务能力还依赖：训练数据 + 多预算 RL + 可恢复环境 + 缓存与调度</text>
+   </g>
+  </g>
+  <g id="text_8">
+   <text style="fill: #142e47; font: 700 25px 'Heiti TC', 'DejaVu Sans'; text-anchor: start" x="35.28" y="52.65" transform="rotate(-0 35.28 52.65)">01  Kimi K3：三种信息流</text>
+  </g>
+  <g id="text_9">
+   <text style="fill: #68788b; font: 14px 'Heiti TC', 'DejaVu Sans'; text-anchor: start" x="35.28" y="76.266875" transform="rotate(-0 35.28 76.266875)">2.78T 总参数 · 104.2B 激活参数 · 93 层 · 最长 1M token；据报告 pp.3、11 重绘</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p6cd34582af">
+   <rect x="25.2" y="91.8" width="957.6" height="418.5"/>
+  </clipPath>
+ </defs>
+</svg>

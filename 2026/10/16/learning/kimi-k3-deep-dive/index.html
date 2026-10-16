@@ -1,0 +1,864 @@
+<!DOCTYPE html><html lang="zh_CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Kimi K3 技术报告详解 | 早起星人</title><meta name="author" content="早起星人"><meta name="copyright" content="早起星人"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="基于技术分享转写整理，纠正概率、ECE、Brier 与温度校准概念，比较开源路线，补充智能体评测与可运行练习。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kimi K3 技术报告详解">
+<meta property="og:url" content="https://oneDuter.github.io/2026/10/16/learning/kimi-k3-deep-dive/">
+<meta property="og:site_name" content="早起星人">
+<meta property="og:description" content="基于技术分享转写整理，纠正概率、ECE、Brier 与温度校准概念，比较开源路线，补充智能体评测与可运行练习。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://oneDuter.github.io/img/learning-notes/kimi-k3/01-overview.svg">
+<meta property="article:published_time" content="2026-10-16T16:00:00+08:00">
+<meta property="article:modified_time" content="2026-10-16T16:00:00+08:00">
+<meta property="article:author" content="早起星人">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://oneDuter.github.io/img/learning-notes/kimi-k3/01-overview.svg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://oneDuter.github.io/2026/10/16/learning/kimi-k3-deep-dive/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {"title": "Kimi K3 技术报告详解", "isPost": true, "isHome": false, "isHighlightShrink": false, "isToc": true, "postUpdate": "2026-10-16 16:00:00"}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><style>#article-container .math-display{overflow-x:auto;margin:1.4em 0;padding:.3em 0}#article-container math{font-size:1.08em}#article-container pre{overflow:auto;padding:1em;border-radius:6px;background:var(--hl-bg,#f4f6f8)}#article-container td,#article-container th{vertical-align:top}#article-container img{max-height:750px;object-fit:contain}#post-meta{line-height:2}#post-meta a{color:inherit;text-decoration:underline}@media(max-width:600px){#post-info .post-title{font-size:24px;line-height:1.5;text-wrap:balance}}</style><style id="kimi-k3-style">#article-container{font-size:17px;line-height:1.95}#article-container h2{margin-top:2.3em}#article-container img{max-height:none;width:100%;height:auto;border-radius:8px;background:#f6f8fc}#article-container .math-display{overflow-x:auto;padding:.7em 0}#article-container table{display:block;overflow:auto;font-size:15px}#article-container td,#article-container th{min-width:90px;white-space:normal}#article-container code{overflow-wrap:anywhere}@media(max-width:650px){#article-container{font-size:16px}#article-container math{font-size:.96em}#article-container table{font-size:14px}}</style></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230511141236.png" onerror="onerror=null;src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">47</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">11</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background:linear-gradient(120deg,#142f45,#356d83)"><nav id="nav"><span id="blog-info"><a href="/" title="早起星人"><span class="site-name">早起星人</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Kimi K3 技术报告详解</h1><div id="post-meta"><time datetime="2026-10-16T16:00:00+08:00">2026-10-16</time> · <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a> · <a href="https://github.com/oneDuter/oneDuter.github.io/blob/main/learning-notes/2026-10-16-kimi-k3-deep-dive.md">Markdown 原稿</a></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>Kimi K3 最值得理解的，是它如何把更大的模型、百万 token 上下文和长时间执行任务连接成一套可运行的系统。报告提出的核心组合是：<strong>KDA 负责高效处理序列，AttnRes 负责跨层取用信息，Stable LatentMoE 负责扩大稀疏容量，强化学习负责把这些能力转化为持续行动和验证。</strong> 与之配套的训练、缓存和调度系统，使这些设计能在有限显存和计算预算下运转。</p>
+<p>本文以 47 页《Kimi K3: Open Frontier Intelligence》为主要依据。页码采用 PDF 页面下方的编号，与本文件的物理页序一致。图示均为重新绘制的解释图；其中的玩具数字会注明，评测图使用报告中的原始数值。<strong>“报告结果”表示作者报告的证据，“解读”表示对机制的解释或推论。</strong> 榜单、成本数据保留原报告的时间口径，不作为实时排名或报价。</p>
+<ul>
+<li><a href="https://github.com/MoonshotAI/Kimi-K3/blob/main/k3_tech_report.pdf">官方报告 PDF</a></li>
+<li><a href="https://github.com/MoonshotAI/Kimi-K3">官方项目</a> · <a href="https://huggingface.co/moonshotai/Kimi-K3">模型权重与模型卡</a></li>
+<li><a href="https://github.com/oneDuter/oneDuter.github.io/blob/main/learning-notes/kimi-k3/README.md">图示和生成脚本</a> · <a href="/learning-notes/kimi-k3/benchmark-data.csv">评测数据 CSV</a></li>
+</ul>
+<h2 id="一-阅读路线与主要结论">一 阅读路线与主要结论</h2>
+<p>如果只读一遍，建议沿着以下问题阅读：模型如何“记住”前文，如何“挑选”前层表示，如何“调用”专家，如何“学会”长任务，最后如何验证效果。架构部分需要一点线性代数；后半部分侧重系统和实验解释。</p>
+<table>
+<thead>
+<tr>
+<th>想理解的问题</th>
+<th>对应章节</th>
+<th>原文位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.8T 参数为什么每个 token 只激活约 104B</td>
+<td>二、六</td>
+<td>§2.3，pp.6–9；Table 1，p.11</td>
+</tr>
+<tr>
+<td>百万上下文为何还需要全局注意力</td>
+<td>三、四、八</td>
+<td>§2.1，pp.4–6；§3.4，p.12</td>
+</tr>
+<tr>
+<td>AttnRes 如何改变残差连接</td>
+<td>五</td>
+<td>§2.2，p.6</td>
+</tr>
+<tr>
+<td>训练为什么要同时改激活函数和路由</td>
+<td>六、七</td>
+<td>§2.3，pp.6–9；附录 B–D，pp.43–45</td>
+</tr>
+<tr>
+<td>模型怎么学会长期使用工具</td>
+<td>九、十</td>
+<td>§4，pp.12–16</td>
+</tr>
+<tr>
+<td>长任务为什么需要缓存和可恢复沙箱</td>
+<td>十一至十三</td>
+<td>§5，pp.17–25</td>
+</tr>
+<tr>
+<td>哪些结果强，哪些结果仍有差距</td>
+<td>十四至十六</td>
+<td>§6–7，pp.25–34</td>
+</tr>
+</tbody>
+</table>
+<p><strong>报告支持的主要结论</strong>：K3 在报告所选的编程、搜索、工具使用和视觉任务上表现接近其比较对象中的最强闭源系统，部分项目领先；研究级推理、部分计算机操作和代理行为质量仍有差距。它并非每个任务都最强。报告关于约 2.5 倍 scaling efficiency 的结论来自整套架构、数据和训练配方的缩放实验，不能单独归功于一个模块。</p>
+<p><img alt="图1 Kimi K3 的三种信息流和整体架构" src="/img/learning-notes/kimi-k3/01-overview.svg" /></p>
+<p><em>图1：输入文字和视觉表示进入同一个骨干。序列、深度、通道三个方向分别对应混合注意力、AttnRes、Stable LatentMoE。示意综合原文 Figure 2、Table 1，pp.3、11。</em></p>
+<h2 id="二-参数表应该怎样读">二 参数表应该怎样读</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th style="text-align: right;">Kimi K2</th>
+<th style="text-align: right;">Kimi K3</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>总参数</td>
+<td style="text-align: right;">1.04T</td>
+<td style="text-align: right;">2.78T</td>
+<td>所有权重的总规模</td>
+</tr>
+<tr>
+<td>激活参数</td>
+<td style="text-align: right;">32.6B</td>
+<td style="text-align: right;">104.2B</td>
+<td>一个 token 所经过的活跃计算路径规模</td>
+</tr>
+<tr>
+<td>骨干层数</td>
+<td style="text-align: right;">61</td>
+<td style="text-align: right;">93</td>
+<td>更深的计算网络</td>
+</tr>
+<tr>
+<td>隐藏维度</td>
+<td style="text-align: right;">7168</td>
+<td style="text-align: right;">7168</td>
+<td>主干宽度保持不变</td>
+</tr>
+<tr>
+<td>路由专家数</td>
+<td style="text-align: right;">384</td>
+<td style="text-align: right;">896</td>
+<td>可供选择的专家池</td>
+</tr>
+<tr>
+<td>每 token 激活路由专家</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">16</td>
+<td>每次实际调用的专业分支</td>
+</tr>
+<tr>
+<td>共享专家</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td>每个 MoE 层保留的公共分支</td>
+</tr>
+<tr>
+<td>路由专家潜在维度</td>
+<td style="text-align: right;">无</td>
+<td style="text-align: right;">3584</td>
+<td>专家路径只接收主干一半宽度</td>
+</tr>
+<tr>
+<td>注意力组成</td>
+<td style="text-align: right;">61 MLA</td>
+<td style="text-align: right;">69 KDA + 24 MLA</td>
+<td>局部递归记忆与全局内容交互结合</td>
+</tr>
+<tr>
+<td>最大训练上下文</td>
+<td style="text-align: right;">128K</td>
+<td style="text-align: right;">1M</td>
+<td>经分阶段扩展获得</td>
+</tr>
+</tbody>
+</table>
+<p><em>来源：原文 Table 1，p.11。摘要中的 2.8T、104B 是四舍五入后的表述。</em></p>
+<p>可以把 MoE 想成一家有 896 个专业小组的机构。处理一个 token 时，路由器选择 16 个小组，并保留两个共享分支处理通用变换。<strong>这些“专家”是神经网络中的前馈子网络，不能理解为 896 个有独立对话和记忆的智能体，也不能保证每个专家都有清晰的人类学科标签。</strong></p>
+<p>有两个容易混淆的比例：</p>
+<ul>
+<li>路由稀疏度为 <code>896 / 16 = 56</code>，即每个 token 使用约 1.79% 的路由专家。</li>
+<li>激活参数占总参数约 <code>104.2 / 2780 = 3.75%</code>。这个比例还涉及注意力、共享分支等，不能用 16/896 直接替代。</li>
+</ul>
+<p>稀疏激活降低了每个 token 的计算量，但整个模型的权重仍需被存储、分片或按需搬运。按“所有权重都是 4 bit”的理想化算术估算，2.78T 参数仅权重就约需 <strong>1.39 TB，约 1.26 TiB</strong>；报告实际还有高精度组件、量化元数据、缓存和运行时内存。因此，104B 激活参数并不意味着模型能按一个普通 104B 稠密模型的完整存储成本部署。这个估算是容量直觉，不是实测部署配置。</p>
+<h2 id="三-kda-如何把前文变成可更新的记忆">三 KDA 如何把前文变成可更新的记忆</h2>
+<h3 id="传统注意力与递归状态">传统注意力与递归状态</h3>
+<p>全局注意力允许当前 token 直接比较历史 token 的键，再读取相应的值。它像可以逐条查询的档案库；随着历史变长，需要保留更多 KV 信息。在常规实现和固定维度条件下，完整序列的注意力交互随长度呈二次增长，单步解码访问历史的代价也随历史长度增加。</p>
+<p>KDA 维护的是一个固定形状的矩阵状态 <code>S</code>。它像不断更新的关联记忆表：读到一个 token，就修改记忆；查询时，从这张表读出结果。它避免为每层 KDA 保存所有历史 token 的完整 KV，但压缩表示会带来信息竞争，不能承诺无损保留任意长历史。</p>
+<p>对单个注意力头，设 <code>k_t, q_t</code> 是键和查询，<code>v_t</code> 是值，<code>α_t</code> 是逐通道保留系数，<code>β_t</code> 是写入强度。报告的核心递推为：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>S</mi><mi>t</mi></msub><mo>&#x0003D;</mo><mo stretchy="false">&#x00028;</mo><mi>I</mi><mo>&#x02212;</mo><msub><mi>&#x003B2;</mi><mi>t</mi></msub><msub><mi>k</mi><mi>t</mi></msub><msubsup><mi>k</mi><mi>t</mi><mo>&#x022A4;</mo></msubsup><mo stretchy="false">&#x00029;</mo><mo>Diag</mo><mo stretchy="false">&#x00028;</mo><msub><mi>&#x003B1;</mi><mi>t</mi></msub><mo stretchy="false">&#x00029;</mo><msub><mi>S</mi><mrow><mi>t</mi><mo>&#x02212;</mo><mn>1</mn></mrow></msub><mo>&#x0002B;</mo><msub><mi>&#x003B2;</mi><mi>t</mi></msub><msub><mi>k</mi><mi>t</mi></msub><msubsup><mi>v</mi><mi>t</mi><mo>&#x022A4;</mo></msubsup></mrow></math></div>
+
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mover><mrow><mi>o</mi></mrow><mo>&#x0007E;</mo></mover><mi>t</mi></msub><mo>&#x0003D;</mo><msubsup><mi>S</mi><mi>t</mi><mo>&#x022A4;</mo></msubsup><msub><mi>q</mi><mi>t</mi></msub></mrow></math></div>
+
+<p><em>来源：§2.1.1，Eq.1，p.4。<code>S</code> 的形状是键维度乘值维度。</em></p>
+<h3 id="用三步拆开公式">用三步拆开公式</h3>
+<p>定义衰减后的记忆 <code>A_t = Diag(α_t) S_(t−1)</code>，上式可以等价改写为：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mover><mrow><mi>v</mi></mrow><mo>&#x0005E;</mo></mover><mi>t</mi></msub><mo>&#x0003D;</mo><msubsup><mi>A</mi><mi>t</mi><mo>&#x022A4;</mo></msubsup><msub><mi>k</mi><mi>t</mi></msub><mo>&#x0002C;</mo><mspace width="2em" /><msub><mi>e</mi><mi>t</mi></msub><mo>&#x0003D;</mo><msub><mi>v</mi><mi>t</mi></msub><mo>&#x02212;</mo><msub><mover><mrow><mi>v</mi></mrow><mo>&#x0005E;</mo></mover><mi>t</mi></msub><mo>&#x0002C;</mo><mspace width="2em" /><msub><mi>S</mi><mi>t</mi></msub><mo>&#x0003D;</mo><msub><mi>A</mi><mi>t</mi></msub><mo>&#x0002B;</mo><msub><mi>&#x003B2;</mi><mi>t</mi></msub><msub><mi>k</mi><mi>t</mi></msub><msubsup><mi>e</mi><mi>t</mi><mo>&#x022A4;</mo></msubsup></mrow></math></div>
+
+<ol>
+<li><strong>先遗忘</strong>：不同键通道乘上不同的 <code>α</code>，决定哪些记忆保留得久，哪些衰减得快。</li>
+<li><strong>再检查</strong>：用当前键读取旧记忆，得到它现在“认为应该对应”的值。</li>
+<li><strong>按误差写入</strong>：把新值与旧预测的差异写回去，而非不断叠加所有新值。</li>
+</ol>
+<p>“delta”可以理解为按预测误差修正。<code>β</code> 控制修改幅度，<code>α</code> 控制记忆寿命，两个门承担不同职责。</p>
+<p><img alt="图2 KDA 的遗忘读取与误差修正" src="/img/learning-notes/kimi-k3/02-kda-update.svg" /></p>
+<p><em>图2：玩具例子，状态是两行一列，忽略多头和输出门。旧状态 <code>[2,4]</code> 经 <code>[0.8,0.5]</code> 衰减成为 <code>[1.6,2]</code>；当前键为 <code>[1,0]</code>，目标值为 3，写入强度为 0.5，更新后状态为 <code>[2.3,2]</code>。这不是报告中的实测状态。</em></p>
+<p>实际 KDA 还包含短卷积、Swish、Q/K 的 L2 归一化、按头 RMSNorm 和输出门。短卷积帮助局部混合，归一化控制数值尺度；输入相关的全秩输出门决定记忆读出的哪些通道继续向后传递。不能把核心递推式当成完整实现。（§2.1.1，pp.4–5）</p>
+<h3 id="递归并不等于训练时逐-token-串行">递归并不等于训练时逐 token 串行</h3>
+<p>报告采用“块间递归、块内并行”的计算形式。一个 chunk 的输出包含两部分：前面 chunk 传来的状态，以及当前 chunk 内 token 之间的因果交互。后者可以改写为矩阵运算，使用 GPU Tensor Core。因果掩码保留对角线，因为一个位置读取的是当前 token 已写入后的状态。（Eq.3–4，p.4）</p>
+<p>真正的工程问题是：数学等价的写法，可能在有限精度下表现很不一样。</p>
+<h2 id="四-为什么修改遗忘门就能改变-gpu-性能">四 为什么修改遗忘门就能改变 GPU 性能</h2>
+<p>KDA 的块内计算需要使用累计保留系数的倒数。如果保留系数连续很小，它们的乘积会非常接近零，倒数就可能溢出。</p>
+<p>此前 Kimi Linear 使用的每步 log-decay 没有有限下界。K3 改为：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>g</mi><mi>t</mi></msub><mo>&#x0003D;</mo><msub><mi>g</mi><mrow><mo>min</mo></mrow></msub><mo>Sigmoid</mo><mo stretchy="false">&#x00028;</mo><msup><mi>e</mi><mi>A</mi></msup><msub><mi>z</mi><mi>t</mi></msub><mo stretchy="false">&#x00029;</mo><mo>&#x0002C;</mo><mspace width="2em" /><msub><mi>g</mi><mrow><mo>min</mo></mrow></msub><mo>&#x0003D;</mo><mo>&#x02212;</mo><mn>5</mn><mo>&#x0002C;</mo><mspace width="2em" /><msub><mi>&#x003B1;</mi><mi>t</mi></msub><mo>&#x0003D;</mo><msup><mi>e</mi><mrow><msub><mi>g</mi><mi>t</mi></msub></mrow></msup></mrow></math></div>
+
+<p>由此每个通道满足 <code>−5 &lt; g &lt; 0</code>，也就是 <code>exp(−5) &lt; α &lt; 1</code>。在 16-token tile 内，累计 log-decay 位于 <code>−80</code> 到 <code>0</code> 之间，倒数缩放小于 <code>exp(80)</code>，仍在 BF16 的动态范围内。（§2.1.1，Eq.5，Figure 3，p.5）</p>
+<p><strong>解读</strong>：这相当于给记忆衰减装上数值范围明确的阀门。修改的直接收益，是原来需要专门逐位置对处理的对角 tile，也能走密集 Tensor Core 矩阵乘路径。模型参数化和硬件计算方式在这里相互约束。</p>
+<p>这不表示模型“最多只能忘记到某个累计程度”：下界限制的是<strong>单步</strong>衰减，跨很长序列的累计衰减仍可极强。它也不意味着所有数值误差消失，更不能把局部 kernel 收益等同于端到端训练提速。</p>
+<h3 id="为什么保留-gated-mla">为什么保留 Gated MLA</h3>
+<p>K3 的骨干按三个 KDA 层、一个 Gated MLA 层的模式重复，末尾再加一个 MLA。因此 93 层为：</p>
+<p><code>23 × (3 KDA + 1 MLA) + 1 MLA = 69 KDA + 24 MLA</code>。</p>
+<p>MLA 把每个 token 的 KV 表示压缩成低维潜变量，再用于全局内容交互。它提供对历史内容的直接访问；KDA 提供更便宜的顺序混合。<strong>K3 整体仍有随序列长度增长的 MLA KV cache，不能称为整个模型“常数缓存”或所有计算都严格线性。</strong>（§2.1.2，pp.5–6；Table 1，p.11）</p>
+<p>MLA 使用 NoPE，没有显式位置编码；KDA 的顺序递推和衰减提供位置敏感信息。NoPE 避免了扩窗时重新调整 RoPE 的步骤，但不自动赋予百万上下文能力。后续数据和训练课程仍然必要。</p>
+<h2 id="五-attnres-如何让深层网络重新选择信息">五 AttnRes 如何让深层网络重新选择信息</h2>
+<p>普通残差连接可以写成 <code>h_(l+1) = h_l + f_l(h_l)</code>。它对优化很有帮助，但前面不同层的输出逐渐混在同一个累积状态里。深层模块要提取某一层的信息，往往需要从混合表示中恢复它。</p>
+<p>AttnRes 把“到历史 token 中检索”的思想移到深度方向：一个模块可对前面的表示分配权重，再形成输入。可以把普通残差理解为把前面所有会议纪要写在同一页，AttnRes 则允许当前环节给几份阶段纪要分别打权重。</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>a</mi><mrow><mi>i</mi><mo>&#x02192;</mo><mi>l</mi></mrow></msub><mo>&#x0003D;</mo><msub><mo>softmax</mo><mi>i</mi></msub><mo stretchy="false">&#x00028;</mo><msubsup><mi>w</mi><mi>l</mi><mo>&#x022A4;</mo></msubsup><mo>RMSNorm</mo><mo stretchy="false">&#x00028;</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false">&#x00029;</mo><mo stretchy="false">&#x00029;</mo><mo>&#x0002C;</mo><mspace width="2em" /><msub><mi>h</mi><mi>l</mi></msub><mo>&#x0003D;</mo><munder><mo>&#x02211;</mo><mi>i</mi></munder><msub><mi>a</mi><mrow><mi>i</mi><mo>&#x02192;</mo><mi>l</mi></mrow></msub><msub><mi>b</mi><mi>i</mi></msub></mrow></math></div>
+
+<p>这里用 <code>b_i</code> 表示可供读取的来源。<code>w_l</code> 是该层学习到的 pseudo-query；虽然它并非由当前 token 生成的 Q 投影，权重仍会随各来源的 token 表示变化。RMSNorm 用于打分，避免幅度较大的来源仅因数值尺度而占优；值表示本身按报告定义聚合。（§2.2，Eq.8–10，p.6）</p>
+<p><img alt="图3 普通残差与分块 Attention Residuals" src="/img/learning-notes/kimi-k3/03-attnres.svg" /></p>
+<p><em>图3：权重数字仅用于解释选择性读取。实际使用 Block AttnRes，块内仍累加，块间才保留可单独访问的表示。</em></p>
+<p>全量保留每层输出会增加显存和流水线跨阶段通信，因此 K3 使用 Block AttnRes：块内求和，块间做注意力，并让当前块的部分和参与后续读取。报告描述为八个网络块、块大小 12，最后一个网络块可不满；加上 embedding 来源后共九个块级来源。这个分块与前述“3 KDA + 1 MLA”的注意力排布是不同概念。</p>
+<p><strong>解读</strong>：AttnRes 的作用是改善跨深度的信息访问和优化，并没有直接扩大可存储的上下文长度，也不是额外增加一组时间方向的注意力层。它的算术成本相对可控，实际难点主要在表示存储、通信和 kernel 融合。</p>
+<h2 id="六-stable-latentmoe-如何扩大专家池">六 Stable LatentMoE 如何扩大专家池</h2>
+<p>常规 MoE 的每个被选专家都接收主干全宽表示。专家调用数增加时，不仅计算变多，分发激活和读取专家权重的流量也增加。</p>
+<p>LatentMoE 把两种工作分开：共享专家保留全宽输入，路由专家处理降维后的表示。K3 的主干宽度为 7168，路由路径降到 3584，16 个路由专家的输出加权汇合后，经归一化再升回主干维度。</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>z</mi><mo>&#x0003D;</mo><msub><mi>W</mi><mrow><mo>&#x02193;</mo></mrow></msub><mi>x</mi><mo>&#x0002C;</mo><mspace width="2em" /><mi>u</mi><mo>&#x0003D;</mo><munder><mo>&#x02211;</mo><mrow><mi>j</mi><mo>&#x02208;</mo><msub><mi>T</mi><mrow><mn>16</mn></mrow></msub><mo stretchy="false">&#x00028;</mo><mi>x</mi><mo stretchy="false">&#x00029;</mo></mrow></munder><msub><mi>p</mi><mi>j</mi></msub><msub><mi>E</mi><mi>j</mi></msub><mo stretchy="false">&#x00028;</mo><mi>z</mi><mo stretchy="false">&#x00029;</mo></mrow></math></div>
+
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>y</mi><mo>&#x0003D;</mo><munderover><mo>&#x02211;</mo><mrow><mi>j</mi><mo>&#x0003D;</mo><mn>1</mn></mrow><mrow><mn>2</mn></mrow></munderover><msubsup><mi>E</mi><mi>j</mi><mrow><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">h</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">d</mi></mrow></mrow></msubsup><mo stretchy="false">&#x00028;</mo><mi>x</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0002B;</mo><msub><mi>W</mi><mrow><mo>&#x02191;</mo></mrow></msub><mo>RMSNorm</mo><mo stretchy="false">&#x00028;</mo><mi>u</mi><mo stretchy="false">&#x00029;</mo></mrow></math></div>
+
+<p><em>来源：§2.3，Eq.11，pp.6–7。</em></p>
+<p><img alt="图4 潜在空间专家路径与两种负载平衡" src="/img/learning-notes/kimi-k3/04-moe-balance.svg" /></p>
+<p><em>图4：上部是实际宽度和专家数，下部的 8-token、4-expert 分配是玩具例子。QB 改变训练期间的路由偏置；MoonEP 通过物理执行位置和副本平衡设备工作量。两者解决不同层面的问题。</em></p>
+<p>把路由输入减半，有利于减轻通信和专家路径流量，但不能直接宣称“整个 MoE 成本减半”：降维、升维、共享专家及具体 kernel 都有成本。极稀疏大模型还会放大两类故障：多次矩阵变换串联造成激活异常，专家负载不均造成部分分支训练不足和设备等待。</p>
+<p>Stable LatentMoE 对应三项处理：在路由汇合后、升维前加 RMSNorm；使用有界的 SiTU-GLU；用 Quantile Balancing 改善路由负载。三者共同支撑更大的专家池，不能只看“896”这个数字。</p>
+<h2 id="七-situ-与-quantile-balancing-的细节">七 SiTU 与 Quantile Balancing 的细节</h2>
+<h3 id="situ-给两个乘法分支都加软上限">SiTU 给两个乘法分支都加软上限</h3>
+<p>SwiGLU 的两个乘法因子都可能变大，大值相乘会放大低精度计算中的离群激活。SiTU-GLU 用平滑的 tanh soft-cap 分别限制门分支和上分支：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mo>SiTU</mo><mo stretchy="false">&#x00028;</mo><mi>x</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mrow><mo stretchy="true" fence="true" form="prefix">[</mo><msub><mi>&#x003B2;</mi><mn>1</mn></msub><mi>tanh</mi><mo stretchy="false">&#x00028;</mo><msub><mi>W</mi><mi>g</mi></msub><mi>x</mi><mo>&#x0002F;</mo><msub><mi>&#x003B2;</mi><mn>1</mn></msub><mo stretchy="false">&#x00029;</mo><mo stretchy="true" fence="true" form="postfix">]</mo></mrow><mo>&#x02299;</mo><mo>Sigmoid</mo><mo stretchy="false">&#x00028;</mo><msub><mi>W</mi><mi>g</mi></msub><mi>x</mi><mo stretchy="false">&#x00029;</mo><mo>&#x02299;</mo><mrow><mo stretchy="true" fence="true" form="prefix">[</mo><msub><mi>&#x003B2;</mi><mn>2</mn></msub><mi>tanh</mi><mo stretchy="false">&#x00028;</mo><msub><mi>W</mi><mi>u</mi></msub><mi>x</mi><mo>&#x0002F;</mo><msub><mi>&#x003B2;</mi><mn>2</mn></msub><mo stretchy="false">&#x00029;</mo><mo stretchy="true" fence="true" form="postfix">]</mo></mrow></mrow></math></div>
+
+<p>K3 设置 <code>β₁=4</code>、<code>β₂=25</code>。tanh 在零附近近似线性，因此小激活行为接近原先设计；大激活逐渐饱和。由于 tanh 的绝对值小于 1、sigmoid 位于 0 到 1，<strong>这个逐元素激活的输出绝对值不超过 100</strong>。该界限不适用于后续线性投影、残差或整个网络的所有张量。（§2.3.2，pp.7–8；附录 B，p.43）</p>
+<p><img alt="图5 两项稳定化改动对应的函数曲线" src="/img/learning-notes/kimi-k3/05-stability.svg" /></p>
+<p><em>图5：左侧绘制报告使用的 log-decay 参数化，设置 A=0；右侧令两个分支的标量输入相同，仅展示激活函数的一条切片。曲线由公式计算，不是训练实测。</em></p>
+<h3 id="qb-用分位数决定偏置应当移动多少">QB 用分位数决定偏置应当移动多少</h3>
+<p>路由器先给出 <code>s_ij = sigmoid(W_r x_i)</code>，实际选专家时按 <code>s_ij + b_j</code> 做 Top-k，但混合权重只由原始分数归一化得到：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>T</mi><mi>i</mi></msub><mo>&#x0003D;</mo><mo>TopK</mo><mo stretchy="false">&#x00028;</mo><msub><mi>s</mi><mi>i</mi></msub><mo>&#x0002B;</mo><mi>b</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0002C;</mo><mspace width="2em" /><msub><mi>p</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>&#x0003D;</mo><msub><mi>s</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>&#x0002F;</mo><munder><mo>&#x02211;</mo><mrow><mi>r</mi><mo>&#x02208;</mo><msub><mi>T</mi><mi>i</mi></msub></mrow></munder><msub><mi>s</mi><mrow><mi>i</mi><mi>r</mi></mrow></msub></mrow></math></div>
+
+<p>偏置负责调节谁被选中；它不直接写进选中专家之间的加权比例。以往按负载误差的正负固定步长加减偏置：步子太小跟不上，太大容易来回振荡。</p>
+<p>QB 的思路像为每个窗口设置合适的排队门槛：不只判断队伍“太长或太短”，而是根据分数分布计算门槛移动多少。一个 batch 有 <code>m</code> 个 token、<code>n</code> 个专家、每 token 选择 <code>k</code> 个，目标负载是 <code>q=mk/n</code>。</p>
+<p>先取得每个 token 的第 <code>k+1</code> 大偏置分数，作为当前进入 Top-k 所需的截止值 <code>c_i</code>。再观察每个专家相对这个截止值的 margin。新偏置为：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mover><mi>b</mi><mo>&#x0005E;</mo></mover><mi>j</mi></msub><mo>&#x0003D;</mo><mo>&#x02212;</mo><msub><mo>Quantile</mo><mrow><mn>1</mn><mo>&#x02212;</mo><mi>k</mi><mo>&#x0002F;</mo><mi>n</mi></mrow></msub><mo stretchy="false">&#x00028;</mo><msub><mi>s</mi><mrow><mi>:</mi><mo>&#x0002C;</mo><mi>j</mi></mrow></msub><mo>&#x02212;</mo><mi>c</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0002C;</mo><mspace width="2em" /><msup><mi>b</mi><mrow><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">w</mi></mrow></mrow></msup><mo>&#x0003D;</mo><mover><mi>b</mi><mo>&#x0005E;</mo></mover><mo>&#x02212;</mo><mo>mean</mo><mo stretchy="false">&#x00028;</mo><mover><mi>b</mi><mo>&#x0005E;</mo></mover><mo stretchy="false">&#x00029;</mo></mrow></math></div>
+
+<p>最后减去均值，只去掉所有专家共有的偏移，不改变 Top-k。K3 的 <code>k/n=16/896=1/56</code>，对应约 98.21% 分位数，即调节每个专家可接受的上尾比例。（§2.3.3，Eq.13–14，pp.8–9）</p>
+<p>这里有三点值得仔细区分：</p>
+<ol>
+<li>理想推导固定当前 token 的截止值，再求专家侧门槛；真实训练使用上一批统计更新下一步偏置。<strong>不是当前 batch 先看分配结果，再强行重排成精确均匀。</strong></li>
+<li>分位数用各设备直方图计数相加，再恢复全局分位数；局部分位数的平均值一般不等于全局分位数。附录举例 <code>B=1000</code> 个 bin，估计误差受 bin 宽度控制。（附录 D，pp.44–45）</li>
+<li>推理时冻结偏置，不再做全局分位数计算。直方图近似、batch 分布变化和并列分数也意味着不能把理想平衡解直接理解为每一步的精确承诺。</li>
+</ol>
+<p>附录 C 从“每 token 恰选 k 个专家、每专家恰收 q 个 token”的最大分数分配问题推导对偶优化。固定另一侧阈值时，最优坐标更新就是分位数。原来的固定步长符号更新可视为同一负载误差目标上的粗粒度移动。这个视角解释了 QB 为什么减少了类似学习率的平衡超参数。</p>
+<h2 id="八-原生视觉与百万上下文是怎样训练出来的">八 原生视觉与百万上下文是怎样训练出来的</h2>
+<h3 id="moonvit-从头与语言骨干一起学习">MoonViT 从头与语言骨干一起学习</h3>
+<p>K3 从训练开始就联合优化语言和视觉路径，视觉编码器 MoonViT-V2 也从头训练，以共同的 next-token prediction 目标学习。它采用 27 层、约 401M 参数的 ViT，使用 RMSNorm，去掉线性和注意力投影偏置。图片和视频共享参数，通过帧内空间注意力、帧间时间注意力和时间池化处理视频。（§2.4，pp.9–10）</p>
+<p>投影前的 2×2 空间下采样使视觉 token 数降低到四分之一，最大输入分辨率可到 3584×3584。这里的“百万 token”是文字与视觉表示共同占用的上下文预算，并不是额外提供百万文字 token 再无限加入视频。</p>
+<p>报告的消融显示，相比从 SigLIP 初始化的基线，从头训练的编码器梯度更平稳，视觉任务表现相当。<strong>这支持该训练规模与配方下不必依赖对比预训练初始化，不能推广为所有数据量和模型规模下对比预训练都无用。</strong> 原生视觉意味着输入理解和后续工具反馈进入同一骨干，不表示模型自动具备原生图像像素生成器。</p>
+<h3 id="数据和训练课程">数据和训练课程</h3>
+<p>文字覆盖网页、代码、数学、知识，经过规则过滤、质量分类和去重；知识、数学材料做多风格改写，并核验与来源的一致性。视觉数据包括 OCR、图文交错文档、视频以及“程序代码—渲染结果”配对，覆盖 SVG、网页、3D、游戏和 CAD。（§3.1，p.10）</p>
+<p>上下文按 <strong>8K → 64K → 256K → 1M</strong> 逐步扩展，后两步集中于 cooldown。长材料先清洗、去重，再上采样；还合成必须联合使用远距离分散信息才能完成的任务。（§3.3–3.4，pp.11–12）</p>
+<p>这个区别很关键：把许多短文拼成长串，只会让模型见过长输入；要求它跨很远的位置关联证据，才会对长程能力施加训练压力。NoPE 减少扩窗时的编码修改，训练课程负责让模型适应实际长任务。</p>
+<h3 id="25-倍效率的正确口径">2.5 倍效率的正确口径</h3>
+<p>报告 Figure 7 基于分布外验证损失的拟合 scaling-law 曲线，给出相对 K2 约 2.5 倍总体缩放效率收益。可把它理解为在该缩放实验定义的质量目标附近，整套新配方更有效地使用训练计算。它不是“所有评测分数乘 2.5”，也不是 API 吞吐、价格或总训练成本的统一倍数。</p>
+<p>K3 比 K2 的总参数和激活参数都更多，无法仅凭 2.5 倍就推导最终训练花费更低。最终花费还取决于训练 token、总步数、硬件和利用率。</p>
+<p>作者还为 cosine decay 与 WSD 分别搜索最优学习率和 batch size，最终选择 cosine。<strong>解读</strong>：公平比较训练配方时，应允许不同方法各自调参，否则可能只是比较谁更适合某组固定超参数。（§3.2，pp.10–11）</p>
+<p>Per-Head Muon 则把 Q/K/V 的动量矩阵按注意力头拆开做正交化，减少不同头梯度尺度互相支配的现象。这属于优化器层面的稳定化，而非注意力公式本身的变化。（§2.5，p.10）</p>
+<h2 id="九-后训练如何把能力整合成一个模型">九 后训练如何把能力整合成一个模型</h2>
+<p>K3 的后训练分为 SFT、分域分预算 RL、Multi-Teacher On-Policy Distillation 三步。</p>
+<p><img alt="图6 九位训练教师与长轨迹暂停恢复" src="/img/learning-notes/kimi-k3/06-posttraining.svg" /></p>
+<p><em>图6：上部九个教师来自三个任务域与三个 effort 档位；它们是训练策略模型。下部表示长 rollout 跨迭代继续，需要同时保留模型前缀状态与工具环境。来源：§4.1、§5.3，pp.12–14、21–22。</em></p>
+<h3 id="sft-提供可继续强化学习的起点">SFT 提供可继续强化学习的起点</h3>
+<p>SFT 使用此前 Kimi 系列的分域模型合成轨迹，再经多阶段验证和人工参与标注。轨迹以 XTML 统一序列化，让模型先学会工具调用、交互格式和基本长任务行为。它提供“能动起来”的起点，RL 再优化更难的决策与执行。（§4.1.1，p.12）</p>
+<h3 id="九个教师分别学习领域与预算">九个教师分别学习领域与预算</h3>
+<p>三个任务域是一般任务、一般代理和编程代理；每域分别训练 low、high、max 三种 effort，共九个教师。它们不是推理时每个 token 选择的 MoE 专家，二者处于完全不同的层面。</p>
+<p>对一个问题 <code>x</code>，先用冷启动模型估计预算 <code>b₀(x)</code>。如果轨迹总用量超过 <code>τ b₀(x)</code>，任务奖励被覆盖为 <code>−1</code>。一般任务统计 thinking tokens，代理任务统计累计输出，包括推理与工具参数。先用较大 τ 训练 max，再逐步缩小得到 high、low。（§4.1.2，p.13）</p>
+<p><strong>解读</strong>：effort 不只是服务端截断回答长度，它在训练时改变“在多少预算内解决问题”的激励。预算太紧会压制探索；预算太松容易冗长和低效。报告采用分阶段、分领域并带人工指导的调整，未给出一套可直接迁移到任意模型的统一 τ。</p>
+<h3 id="多教师-on-policy-蒸馏">多教师 on-policy 蒸馏</h3>
+<p>训练统一学生时，学生先在自己的策略下生成轨迹，再由任务域和 effort 对应的教师评价这些轨迹。每个 token 的密集信号为教师与学生概率的 log-ratio，并做截断和 stop-gradient：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>r</mi><mi>t</mi></msub><mo>&#x0003D;</mo><mo>clip</mo><mrow><mo stretchy="true" fence="true" form="prefix">&#x00028;</mo><mo>sg</mo><mrow><mo stretchy="true" fence="true" form="prefix">[</mo><mi>log</mi><mfrac><mrow><msub><mi>&#x003C0;</mi><mrow><mrow><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">h</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">r</mi></mrow></mrow></msub><mo stretchy="false">&#x00028;</mo><msub><mi>y</mi><mi>t</mi></msub><mo>&#x02223;</mo><mi>x</mi><mo>&#x0002C;</mo><msub><mi>y</mi><mrow><mo>&#x0003C;</mo><mi>t</mi></mrow></msub><mo stretchy="false">&#x00029;</mo></mrow><mrow><msub><mi>&#x003C0;</mi><mrow><mi>&#x003B8;</mi></mrow></msub><mo stretchy="false">&#x00028;</mo><msub><mi>y</mi><mi>t</mi></msub><mo>&#x02223;</mo><mi>e</mi><mo>&#x0002C;</mo><mi>x</mi><mo>&#x0002C;</mo><msub><mi>y</mi><mrow><mo>&#x0003C;</mo><mi>t</mi></mrow></msub><mo stretchy="false">&#x00029;</mo></mrow></mfrac><mo stretchy="true" fence="true" form="postfix">]</mo></mrow><mo>&#x0002C;</mo><mo>&#x02212;</mo><msub><mi>R</mi><mrow><mo>max</mo></mrow></msub><mo>&#x0002C;</mo><msub><mi>R</mi><mrow><mo>max</mo></mrow></msub><mo stretchy="true" fence="true" form="postfix">&#x00029;</mo></mrow></mrow></math></div>
+
+<p><em>来源：§4.1.3，Eq.15，pp.13–14。此处简化了教师的领域与 effort 下标。</em></p>
+<p>可以类比为学生自己走一遍解题路线，领域教师沿途指出哪些选择更符合它的策略。与只模仿预先收集的教师答案相比，学生会在自己实际容易走到的状态中得到反馈。这个信号首先约束对教师策略的接近程度；教师偏好不能自动替代对真实任务结果的独立验证。</p>
+<h2 id="十-训练环境为何决定代理会学成什么样">十 训练环境为何决定代理会学成什么样</h2>
+<h3 id="变化的工具框架减少接口过拟合">变化的工具框架减少接口过拟合</h3>
+<p>白盒环境把 tool schema、系统提示、上下文管理、skills、memory 和 subagents 等拆成可配置模块，再组合不同 harness。这样同一个任务域不会总与某套固定接口绑定。<strong>解读</strong>：训练时变化“怎么拿工具”，有助于模型学习工具使用的一般规律，但是否真正跨框架泛化仍需独立评测。（§4.2.1，pp.14–15）</p>
+<p>知识图谱则按粗概念到细概念组织材料检索：抽样相关概念及其祖先上下文，检索材料，再合成不同任务。图谱主要服务于训练任务的覆盖和分布控制，不是模型推理时必然依赖的外部知识库。（§4.2.2，p.15）</p>
+<h3 id="奖励应检查最终环境状态">奖励应检查最终环境状态</h3>
+<p>不同任务采用不同的验证方式：</p>
+<table>
+<thead>
+<tr>
+<th>环境</th>
+<th>行动与反馈</th>
+<th>能学到什么及边界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>搜索与专业知识工作</td>
+<td>多轮检索、使用领域工具、提交材料</td>
+<td>证据收集与工作流执行；可验证性取决于评分设计</td>
+</tr>
+<tr>
+<td>视觉推理</td>
+<td>用 Python 裁剪、缩放、计算，再读新图</td>
+<td>观察与行动交替；有工具分数包含了外部计算收益</td>
+</tr>
+<tr>
+<td>GPU kernel 优化</td>
+<td>先比对数值正确性，再测性能</td>
+<td>必须同时满足误差和速度要求</td>
+</tr>
+<tr>
+<td>个人助理</td>
+<td>在模拟 Gmail、Notion、Slack 等环境处理跨日事件</td>
+<td>保留真实应用核心语义，但迁移到线上仍受权限和接口影响</td>
+</tr>
+<tr>
+<td>Autonomous Execution Tasks</td>
+<td>给初态、目标、约束与 verifier</td>
+<td>以环境终态判断完成，公共反馈与隐藏测试结合</td>
+</tr>
+<tr>
+<td>网页开发</td>
+<td>构建、运行、功能与视觉检查、模型评审</td>
+<td>项目无法构建、运行报错或伪造功能会被置零</td>
+</tr>
+</tbody>
+</table>
+<p><em>来源：§4.2.3–4.2.7，pp.15–16。</em></p>
+<p>kernel 奖励中，误差超标为零，达到专家实现性能对应 0.5，靠近硬件 roofline 时趋近 1。报告还检查输入缓存、降低精度等投机策略。对于不可确定验证的一般任务，生成式奖励模型先读结果、生成 rubric、逐项打分并记录；还用长度预算抑制靠冗长取得偏好。</p>
+<p><strong>解读</strong>：模型会优化“评分器能观察到的成功”。让它自称完成，只能训练出擅长报告成功的模型；检查文件、程序行为和环境状态，才把奖励与真实交付物绑定。隐藏验证、独立评审和资源预算能减轻奖励投机，但不能证明评分器绝不会被钻空子。</p>
+<h2 id="十一-kda-上下文并行如何实现">十一 KDA 上下文并行如何实现</h2>
+<p>固定大小记忆便于传输，却不自动消除串行依赖。KDA 每步对旧状态乘上一个 token 相关矩阵，不能像最简单的加法型线性注意力一样，把各段从零计算的状态直接相加。</p>
+<p>KCP 为一段序列保存两个量：累计变换 <code>M</code> 和这段从零状态产生的写入 <code>B</code>。无论输入状态是什么，这段的效果都是：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>S</mi><mrow><mrow><mi mathvariant="normal">o</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">t</mi></mrow></mrow></msub><mo>&#x0003D;</mo><mi>M</mi><msub><mi>S</mi><mrow><mrow><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi></mrow></mrow></msub><mo>&#x0002B;</mo><mi>B</mi></mrow></math></div>
+
+<p>先执行段 1，再执行段 2，组合结果为：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mo stretchy="false">&#x00028;</mo><msub><mi>M</mi><mn>2</mn></msub><mo>&#x0002C;</mo><msub><mi>B</mi><mn>2</mn></msub><mo stretchy="false">&#x00029;</mo><mo>&#x02218;</mo><mo stretchy="false">&#x00028;</mo><msub><mi>M</mi><mn>1</mn></msub><mo>&#x0002C;</mo><msub><mi>B</mi><mn>1</mn></msub><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mo stretchy="false">&#x00028;</mo><msub><mi>M</mi><mn>2</mn></msub><msub><mi>M</mi><mn>1</mn></msub><mo>&#x0002C;</mo><mtext>&#x000A0;</mtext><msub><mi>M</mi><mn>2</mn></msub><msub><mi>B</mi><mn>1</mn></msub><mo>&#x0002B;</mo><msub><mi>B</mi><mn>2</mn></msub><mo stretchy="false">&#x00029;</mo></mrow></math></div>
+
+<p>这种组合具有结合律，因此可以用有序前缀扫描恢复每段的真实输入状态。它一般<strong>不满足交换律</strong>，不能随便改变文本顺序。（§5.1.2，Eq.17，p.18）</p>
+<p><img alt="图7 把长序列切成可组合的仿射状态变换" src="/img/learning-notes/kimi-k3/07-kcp.svg" /></p>
+<p><em>图7：各设备先独立算自己的 M、B，再交换这些固定形状的片段。底部标量例子为教学构造，实际使用矩阵。</em></p>
+<p>报告实现使用一次 all-gather 交换各段的两个张量，再按同一文档的先后次序恢复前缀状态。通信张量不随本段 token 数增长，但仍随头数、维度和并行设备数变化；矩阵变换也有计算成本。“固定状态”不能解释为并行免费。</p>
+<p>同一思路还用于单 GPU 内的长上下文 prefill，把段分到多个 SM 计算；FlashKDA 则把块内并行计算与跨块状态传播重叠。训练、prefill、decode 的瓶颈不同，所以报告分别设计 kernel。（§5.1.1，pp.17–18）</p>
+<h2 id="十二-大模型训练的显存与负载问题">十二 大模型训练的显存与负载问题</h2>
+<h3 id="qb-与-moonep-的平衡目标不同">QB 与 MoonEP 的平衡目标不同</h3>
+<p>QB 让路由专家得到更合理的训练负载；MoonEP 则根据当前 micro-batch 的真实路由，把专家的执行分布到设备，并在需要时临时复制专家。副本使用同一专家权重，反向梯度回收到原属 rank，不会变成新的逻辑专家。（§5.2.1，pp.19–20）</p>
+<p>报告证明，在其模型和均衡条件下，每个 EP rank 预留不超过 <code>E/R</code> 个冗余专家槽位足以找到均衡方案，<code>E</code> 是专家数，<code>R</code> 是 EP 并行度。比如教学设定 <code>E=896, R=64</code>，对应每 rank 至多 14 个冗余专家槽位；这不是报告披露的真实 EP 配置。</p>
+<p>每 rank 的总 token-expert 工作量相同，可以使用静态总计算形状，减少同步和内存碎片，并把 token 直接写到远端专家分组位置。<strong>设备总量相同不等于设备内每个专家收到相同数量的 token</strong>，因此仍需按工作量调度专家 GEMM，并隐藏副本迁移成本。</p>
+<h3 id="显存是多种状态共同竞争的结果">显存是多种状态共同竞争的结果</h3>
+<p>报告把重计算、量化、CPU offload 和远端 GPU offload 统一成张量级存储策略。多数激活使用分块 FP8 与 offload，部分逐元素计算选择重算；流水线前部积压的激活还可搬到更空闲的后部 rank。（§5.2.2，p.20）</p>
+<p>梯度使用 Pipeline ZeRO-2 分片并存放 CPU，GPU 保留双缓冲；Muon 正交化需要完整矩阵时，只用点对点通信取得本 rank 负责矩阵的必要分片。视觉编码器则通过动态 CP 分摊大图和长视频计算，并尽量填进流水线空泡。（pp.20–21）</p>
+<p>这些优化共同表达一个原则：峰值显存不是只看“参数能否装下”，而是看同一时刻权重、梯度、优化器、激活、通信缓冲各占多少空间，以及能否错开生存期。报告提到每个百万上下文 RL 实验使用数百张 GPU，这不能当作整个预训练集群规模。</p>
+<h2 id="十三-长任务暂停时究竟要保存什么">十三 长任务暂停时究竟要保存什么</h2>
+<h3 id="partial-rollout-缩短等待慢任务的时间">Partial rollout 缩短等待慢任务的时间</h3>
+<p>一轮对 <code>N</code> 个问题各采样 <code>K</code> 条轨迹。当完成数达到比例 <code>λNK</code>，就暂停余下生成，进入策略更新。未完成轨迹排队到下一轮优先恢复；同一问题的 K 个回答都完成后，才送去对应的策略优化。（§4.1.2，p.13）</p>
+<p>好处是不用让整个集群等待最后几个超长任务。代价是轨迹跨多轮策略版本，数据会变旧。报告沿用逐 token 正则化来限制更新幅度、容忍这种 off-policy 数据；K3 报告本身没有重新给出全部优化器细节，完整复现还需其引用的 K2.5 方法。</p>
+<h3 id="模型状态与世界状态都要继续">模型状态与世界状态都要继续</h3>
+<p>暂停一个还在执行的代理，至少要延续两类状态：</p>
+<ul>
+<li><strong>模型前缀状态</strong>：MLA 的 KV、KDA 的递归状态、对应的上下文和边界。</li>
+<li><strong>环境状态</strong>：文件、进程、应用数据，以及已经发生的操作和可恢复的执行现场。</li>
+</ul>
+<p>只有对话历史，环境进程可能已经丢失；只有虚拟机快照，模型又可能花费大量时间重新 prefill。AgentENV 使用 microVM 保留进程级运行状态并支持快照恢复，以减轻长工具调用被中断后的损失。（§5.3.2，p.22）</p>
+<p>RL 系统把活跃解码缓存留在 GPU，闲置前缀被逐出时再写回 CPU DRAM；需要时预取，避免一直为仍活跃的块保留重复 CPU 副本。rollout 阶段把训练权重与优化器状态搬到 NVMe，腾出 DRAM；训练恢复前释放外部缓存池。并发量也按实时 KV 压力动态调整。（§5.3.1，pp.21–22）</p>
+<h3 id="混合缓存必须在同一边界恢复">混合缓存必须在同一边界恢复</h3>
+<p>KDA 状态只对应某个前缀终点，不能像逐 token KV 那样任意截取。某段 MLA KV 命中了，不代表 KDA 也能在这个位置恢复。</p>
+<p><img alt="图8 混合前缀缓存的共同恢复边界" src="/img/learning-notes/kimi-k3/08-prefix-cache.svg" /></p>
+<p><em>图8：沿用原文 Figure 12 的 6144-token 物理块与 512-token 哈希粒度。新请求有 2800 token 相同前缀，只有各 KDA 组在 2560 均有 checkpoint 时，才能在此处复用 MLA 与 KDA 并继续计算。来源：§5.4.1，pp.23–24。</em></p>
+<p>这里把“分配多大内存”和“识别多长前缀”拆开：大物理页利于统一内存管理，细哈希端点提供更灵活的命中。KDA checkpoint 只在部分哈希端点保留，优先保留对话轮次边界。命中后复制到请求自己的运行状态，后续写入新槽位；共享快照不能被原地修改。</p>
+<p>并发情况下，必须先固定所有缓存组命中的块，再分配新块；尚未完成复制的块不能被其他请求当作有效缓存；一个 KDA 组的 checkpoint 被逐出时，其余组在该边界的可命中性也必须一起失效。<strong>可实际复用的最远位置，是 MLA 命中端点与所有 KDA 组现存 checkpoint 的共同边界</strong>，并非每个 512 端点永远都有可用快照。</p>
+<h3 id="推测解码也遇到状态回滚">推测解码也遇到状态回滚</h3>
+<p>草稿模型一次提出多个 token，目标模型批量验证。MLA 可以按位置管理缓存，但 KDA 的运行状态在每一步被更新，如果只接受草稿前半段，就不能直接保留最终状态。</p>
+<p>报告缓存体积更小的 token 投影输入，在片上重放被接受的前缀，重建正确 KDA 状态，再写回；这样避免为每个草稿位置保存一整份大状态。（§5.4.2，p.24）</p>
+<p>部署层面的草稿模型来自预训练 MTP 层的微调，融合早、中、后 AttnRes 特征。训练直接优化目标分布 <code>p</code> 与草稿分布 <code>q</code> 的重叠量：</p>
+<div class="math-display"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>L</mi><mrow><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">K</mi></mrow></mrow></msub><mo>&#x0003D;</mo><mo>&#x02212;</mo><mi>log</mi><munder><mo>&#x02211;</mo><mi>x</mi></munder><mo>min</mo><mo stretchy="false">&#x00028;</mo><mi>p</mi><mo stretchy="false">&#x00028;</mo><mi>x</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0002C;</mo><mi>q</mi><mo stretchy="false">&#x00028;</mo><mi>x</mi><mo stretchy="false">&#x00029;</mo><mo stretchy="false">&#x00029;</mo></mrow></math></div>
+
+<p>该重叠量对应标准无损推测采样下的单 token 接受率。正确验证与重采样流程可以保持目标分布；实际提速仍由接受率、草稿成本、批量和 kernel 开销共同决定。（§4.1.4，Eq.16，p.14）</p>
+<h3 id="低精度与全局服务调度">低精度与全局服务调度</h3>
+<p>K3 从 SFT 起贯穿后训练使用 QAT：路由 MoE 专家权重为 MXFP4、相应激活为 MXFP8；注意力、潜在空间投影、共享专家、路由器等保留更高精度。RL 的 rollout 与训练使用同样的量化方案，减少精度不一致。<strong>这不是整个模型所有张量都使用 4 bit。</strong>（§4.1.4，p.14）</p>
+<p>集群调度优先把会话送回已有前缀缓存的主集群，同时预先指定备用集群控制故障影响。短请求与百万上下文请求分别受资源预算约束，避免少量长请求占满系统，让短请求的首 token 延迟一起恶化。（§5.4.3，p.25）</p>
+<h2 id="十四-评测成绩应该怎样比较">十四 评测成绩应该怎样比较</h2>
+<p>报告的主表默认 K3 使用 max effort、temperature=1.0；对手使用各自 max 或 xhigh。多数第三方榜单引用的是 <strong>2026 年 7 月 23 日</strong>附近的快照，部分为 7 月 24 日。下面是原表的选择性重排，不代表今天的榜单。</p>
+<table>
+<thead>
+<tr>
+<th>能力与指标</th>
+<th style="text-align: right;">K3</th>
+<th style="text-align: right;">Claude Fable 5</th>
+<th style="text-align: right;">GPT-5.6 Sol</th>
+<th>应怎样读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPQA Diamond</td>
+<td style="text-align: right;">93.5</td>
+<td style="text-align: right;">92.6</td>
+<td style="text-align: right;">94.1</td>
+<td>高水平知识推理接近</td>
+</tr>
+<tr>
+<td>CritPt</td>
+<td style="text-align: right;">23.4</td>
+<td style="text-align: right;">28.6</td>
+<td style="text-align: right;">32.3</td>
+<td>研究级推理仍有明显空间</td>
+</tr>
+<tr>
+<td>HLE 无工具</td>
+<td style="text-align: right;">43.5</td>
+<td style="text-align: right;">53.3</td>
+<td style="text-align: right;">44.5</td>
+<td>对 Fable 有差距</td>
+</tr>
+<tr>
+<td>DeepSWE</td>
+<td style="text-align: right;">67.5</td>
+<td style="text-align: right;">70.0</td>
+<td style="text-align: right;">73.0</td>
+<td>复杂软件任务尚未领先</td>
+</tr>
+<tr>
+<td>ProgramBench</td>
+<td style="text-align: right;">77.8</td>
+<td style="text-align: right;">76.8</td>
+<td style="text-align: right;">77.6</td>
+<td>在这项报告设置下居前，差距很小</td>
+</tr>
+<tr>
+<td>Terminal-Bench 2.1</td>
+<td style="text-align: right;">88.3</td>
+<td style="text-align: right;">88.0</td>
+<td style="text-align: right;">88.8</td>
+<td>三者接近，报告取各自最佳 harness</td>
+</tr>
+<tr>
+<td>FrontierSWE</td>
+<td style="text-align: right;">81.2</td>
+<td style="text-align: right;">86.6</td>
+<td style="text-align: right;">71.3</td>
+<td>强长任务编程表现</td>
+</tr>
+<tr>
+<td>SWE-Marathon</td>
+<td style="text-align: right;">42.0</td>
+<td style="text-align: right;">35.0</td>
+<td style="text-align: right;">39.0</td>
+<td>基于 H20 校准任务分支</td>
+</tr>
+<tr>
+<td>BrowseComp</td>
+<td style="text-align: right;">91.2</td>
+<td style="text-align: right;">88.0</td>
+<td style="text-align: right;">90.4</td>
+<td>K3 此分数包含 300K 触发的压缩策略</td>
+</tr>
+<tr>
+<td>AutomationBench</td>
+<td style="text-align: right;">30.8</td>
+<td style="text-align: right;">29.1</td>
+<td style="text-align: right;">29.7</td>
+<td>相对领先，绝对分数仍低</td>
+</tr>
+<tr>
+<td>OSWorld 2.0</td>
+<td style="text-align: right;">58.3</td>
+<td style="text-align: right;">66.1</td>
+<td style="text-align: right;">62.6</td>
+<td>新版计算机操作仍落后</td>
+</tr>
+<tr>
+<td>GDPval-AA v2 Elo</td>
+<td style="text-align: right;">1686</td>
+<td style="text-align: right;">1747</td>
+<td style="text-align: right;">1736</td>
+<td>Elo 不能当准确率或与百分数平均</td>
+</tr>
+</tbody>
+</table>
+<p><em>来源：Table 2，p.27；评测条件见 §6.1.2–6.1.3，p.26。Fable 结果含 fallback，GPT-5.6 Sol 结果含潜在 cyberguard 影响。</em></p>
+<p><img alt="图9 同一指标内比较模型的优势与短板" src="/img/learning-notes/kimi-k3/09-benchmarks.svg" /></p>
+<p><em>图9：选取同以 0–100 分报告的八个任务，每行独立比较。不同任务难度和评分含义不同，不据此平均成统一“能力分”。数据为报告 Table 2，p.27。</em></p>
+<h3 id="工具增益必须与基础分数一起呈现">工具增益必须与基础分数一起呈现</h3>
+<table>
+<thead>
+<tr>
+<th>K3 任务</th>
+<th style="text-align: right;">无工具</th>
+<th style="text-align: right;">使用工具</th>
+<th style="text-align: right;">差值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HLE-Full</td>
+<td style="text-align: right;">43.5</td>
+<td style="text-align: right;">56.0</td>
+<td style="text-align: right;">+12.5 个百分点</td>
+</tr>
+<tr>
+<td>MMMU-Pro</td>
+<td style="text-align: right;">81.6</td>
+<td style="text-align: right;">83.4</td>
+<td style="text-align: right;">+1.8 个百分点</td>
+</tr>
+<tr>
+<td>CharXiv RQ</td>
+<td style="text-align: right;">84.8</td>
+<td style="text-align: right;">91.3</td>
+<td style="text-align: right;">+6.5 个百分点</td>
+</tr>
+<tr>
+<td>Math-Vision</td>
+<td style="text-align: right;">94.3</td>
+<td style="text-align: right;">97.8</td>
+<td style="text-align: right;">+3.5 个百分点</td>
+</tr>
+<tr>
+<td>ZeroBench-main pass@5</td>
+<td style="text-align: right;">23.0</td>
+<td style="text-align: right;">41.0</td>
+<td style="text-align: right;">+18.0 个百分点</td>
+</tr>
+</tbody>
+</table>
+<p><em>来源：Table 2，p.27。HLE 使用一般工具，视觉任务使用 Python。</em></p>
+<p><img alt="图10 工具使用带来的分数变化" src="/img/learning-notes/kimi-k3/10-tool-gains.svg" /></p>
+<p>ZeroBench 的 41.0 是 pass@5，不能说成单次作答成功率 41%。pass@5 表示五次尝试中至少一次成功的评测指标，和 pass@1 的含义不同。工具后的提升也不能全部归因于“视觉编码器更强”，它同时包括操作图像、运行计算和验证的收益。</p>
+<h3 id="比较时需要保留的条件">比较时需要保留的条件</h3>
+<ul>
+<li><strong>Harness 会影响结果</strong>：它包含工具、提示、上下文管理与执行限制。Table 3 中 K3 的 KCB 2.0 在 Claude Code 下为 73.7，在 Kimi Code 下为 72.9；相邻结果不能都当作只改变模型的实验。</li>
+<li><strong>长窗口与上下文管理可以并存</strong>：BrowseComp 为 300K 触发压缩时 91.2；完整 1M、不做上下文管理时 90.4。这说明更大的可用窗口不保证每项任务得分更高。（p.26）</li>
+<li><strong>硬件与任务版本要一致</strong>：SWE-Marathon 使用最终 v1.1 前的 H20 校准分支，PostTrainBench 的部分比较也在 H20 而非官方 H100 条件下进行；不宜直接混入另一套官方设置的排名。</li>
+<li><strong>Fallback 与拒答改变观测对象</strong>：尤其安全相关任务，低分可能包含产品策略和路由行为，而不全是底层模型求解能力。</li>
+<li><strong>小差距需要统计不确定性</strong>：表中 0.2、0.5 分的领先可以描述为接近，不能仅凭点估计宣称稳定胜出。主表没有为每项差异提供置信区间或显著性检验。</li>
+</ul>
+<h2 id="十五-内部评测与成本结果提供什么补充">十五 内部评测与成本结果提供什么补充</h2>
+<p>内部评测覆盖多日助理、企业协作、代理行为、研究交付物等。K3 在 Swarm Bench 为 76.3、Deep Research Bench 为 90.0；但 24/7 ClawBench 2.0 为 48.3，低于 GPT-5.6 Sol 的 52.0；Agent Behavior Bench 为 65.0，低于 Fable 的 75.5 和 GPT 的 76.4。（Table 3，p.29）</p>
+<p><strong>解读</strong>：能够产出较强的研究结果，并不等于始终有最好的行为纪律、持续运行可靠性或交互体验。内部测试有助于定位细粒度问题，但任务抽样、judge 和维护频率由作者掌握，读者应把它们与公开和第三方证据结合。</p>
+<p>成本部分比较 KCB 2.0、BrowseComp、GDPval-AA v2 和 AA-Briefcase。报告给出的代表结果包括：</p>
+<ul>
+<li>KCB 2.0：K3 比 Fable 低 4.0 分，成本约为其 38%。</li>
+<li>BrowseComp：K3 91.2 分，约每任务 <strong>2.03 美元</strong>，约为 GPT-5.6 Sol 的一半。</li>
+<li>GDPval-AA v2：K3 比 GPT 低约 50 Elo，成本低约 13%；相对 Fable 约便宜 2.6 倍。</li>
+</ul>
+<p><em>来源：§6.4，Figure 13，pp.31–32；价格按报告引用时间，多项来源口径不同。</em></p>
+<p>这些数字回答“该任务、该工具框架与预算下，拿到此结果花多少钱”。它们不能直接推导当前 API 价格、自部署 GPU 利用率或全部业务的总成本。实际决策更适合同时看成功率、完成一次成功任务的成本、首 token 延迟和长尾时间，而不只看每百万 token 单价。</p>
+<h2 id="十六-安全评测与案例研究的证据边界">十六 安全评测与案例研究的证据边界</h2>
+<h3 id="安全评测">安全评测</h3>
+<p>报告把漏洞发现与端到端利用分开。对经过人工检查的发现，约 70% 被确认有效，其中包括六个项目的 16 个此前未知漏洞；这不是对所有自动生成候选的普遍准确率。（§6.2.2，p.30）</p>
+<p>在作者的 36 项利用任务中，K3 完成 14 项，GLM-5.2 完成 8 项；K3 的成功中 10 项来自用户态任务。独立联合评估还报告了不同环境下的结果，包括一组 41 项任务中未实现任意代码执行。这些不同套件不能直接合并成一个成功率。（pp.30–31）</p>
+<p>作者的轨迹分析指出四类失败：最后一段执行链收尾困难，约束下策略选择不佳，陷入低效调试循环，以及交付前验证不足。它们也与一般代理可靠性相关。对手拒绝某些安全任务时无法形成可比求解实验，不能据此宣布 K3 的整体安全能力超过这些模型。</p>
+<h3 id="展示案例">展示案例</h3>
+<table>
+<thead>
+<tr>
+<th>案例</th>
+<th>报告展示</th>
+<th>应保留的条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AttnRes kernel 优化</td>
+<td>延迟从 283.6 ms 到 114.4 ms</td>
+<td>特定任务和硬件；约 2.48 倍速度，约 59.7% 延迟下降</td>
+</tr>
+<tr>
+<td>MiniTriton 编译器</td>
+<td>前端、布局、MLIR、PTX、运行时和训练链路</td>
+<td>原型及指定 benchmark；不能推导已全面取代成熟编译栈</td>
+</tr>
+<tr>
+<td>芯片设计</td>
+<td>48 小时内完成小模型推理芯片原型</td>
+<td>Nangate45、4 mm² 分析预算、100 MHz、RTL 模拟；不是 K3 全模型芯片，也不是流片实测</td>
+</tr>
+<tr>
+<td>科研与知识工作</td>
+<td>文献、数值代码、可视化及多轮研究交付</td>
+<td>展示的是成功案例，缺少随机任务总体成功率</td>
+</tr>
+<tr>
+<td>视频剪辑与动效</td>
+<td>通过多模态反馈和工具迭代制作内容</td>
+<td>不能理解为骨干直接输出视频像素</td>
+</tr>
+</tbody>
+</table>
+<p><em>来源：§7，pp.33–34。MiniTriton 与芯片原型分别链接于报告的官方项目。</em></p>
+<p>“8,700 tokens/s”尤其需要跟着模型大小和 RTL 模拟条件一起读；不能把它当成 2.8T K3 的真实芯片吞吐。报告中的人类工时比较也不是随机对照生产率实验。</p>
+<h2 id="十七-把整篇报告连起来理解">十七 把整篇报告连起来理解</h2>
+<p>K3 的机制之间存在明确的依赖关系：</p>
+<ol>
+<li><strong>扩大模型容量</strong>需要稀疏专家；更大的专家池需要潜在维度路径、激活稳定化和更好的路由。</li>
+<li><strong>扩大序列长度</strong>需要压缩递归状态与周期性全局注意力；真正利用长上下文还需要相应的数据课程。</li>
+<li><strong>扩大网络深度</strong>增加了跨层信息访问压力，AttnRes 让后层更容易选择早期表示。</li>
+<li><strong>扩大任务执行时间</strong>需要 RL 环境和验证反馈，也要求同时保存模型前缀与沙箱状态。</li>
+<li><strong>把能力提供给用户</strong>需要 QAT、草稿模型、状态回滚、缓存一致性以及按资源预算调度。</li>
+</ol>
+<p><strong>我的判断</strong>：最有价值的研究信号，是这些模块并非孤立拼装。衰减门的范围决定能否使用某种 GPU 计算路径，递归状态决定前缀缓存如何恢复，轨迹长度又决定 RL 系统怎样切换内存资源。研究算法时，数据分布、状态形状和硬件生存期都进入了设计条件。</p>
+<p>另一方面，这份报告没有提供完整训练数据、全部训练预算、所有关键模块在最终规模上的逐项因果消融，也没有给出每项榜单差异的统计不确定性。公开权重降低了进一步研究和部署的门槛，仍需遵循官方许可，并不能等同于完整训练过程已可复现。</p>
+<h2 id="十八-自测与进一步阅读">十八 自测与进一步阅读</h2>
+<p>读完后可以用以下问题检查是否抓住重点：</p>
+<ol>
+<li>为什么 KDA 的“读取旧值再修正”不等于不断累加新值？</li>
+<li>为什么单步遗忘有下界，长期累计遗忘仍可以很强？</li>
+<li>既然有 KDA，为什么还保留 24 个 MLA 层？</li>
+<li>为什么 16/896 不等于激活参数占比？</li>
+<li>QB 的专家平衡和 MoonEP 的设备平衡有何不同？</li>
+<li>暂停代理后，只有文本历史为什么不够？</li>
+<li>MLA 在 3072 之前匹配，但 KDA 只在 2560 有共同 checkpoint，应该从哪里恢复？</li>
+<li>为什么 BrowseComp 的 91.2 不能单独证明“1M 不需要压缩”？</li>
+<li>pass@5、Elo、正确率为什么不能混成一个平均分？</li>
+<li>为什么芯片案例不能作为 K3 全模型真实吞吐的证据？</li>
+</ol>
+<p>简要答案：误差写入；下界仅约束单步；保留全局内容访问；还包含其他活跃组件；逻辑路由与物理调度不同；工具环境也有持久状态；从 2560 恢复；91.2 使用压缩而无管理版本为 90.4；指标定义不同；案例是小模型 RTL 原型。</p>
+<p>建议回读顺序：先看 Figure 2 与 Table 1 建立全貌，再读 Eq.1、5、11、14、17，最后对照 Table 2–3 的设置。系统方向重点读 §5.3–5.4，研究方向重点读 §3.2 与附录 C–D。</p>
+<h2 id="来源与图示说明">来源与图示说明</h2>
+<p>主要来源为《Kimi K3: Open Frontier Intelligence》，Kimi Team，47 页 PDF 版本。在线官方入口于 2026-10-16 核对；本文的评测数值仍以该 PDF 为准，没有混入后续榜单更新。</p>
+<table>
+<thead>
+<tr>
+<th>本文内容</th>
+<th>原文依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>三维信息流与架构</td>
+<td>Figure 2，§2，pp.3–11</td>
+</tr>
+<tr>
+<td>KDA 更新与有界遗忘</td>
+<td>Eq.1–6，Figure 3，pp.4–5</td>
+</tr>
+<tr>
+<td>Gated MLA 与 NoPE</td>
+<td>§2.1.2，pp.5–6</td>
+</tr>
+<tr>
+<td>AttnRes</td>
+<td>Eq.8–10，p.6</td>
+</tr>
+<tr>
+<td>LatentMoE 与 SiTU</td>
+<td>Eq.11–12，pp.7–8；附录 B，p.43</td>
+</tr>
+<tr>
+<td>QB 与直方图</td>
+<td>Eq.13–14，pp.8–9；附录 C–D，pp.43–45</td>
+</tr>
+<tr>
+<td>视觉与预训练</td>
+<td>§2.4–3.4，pp.9–12</td>
+</tr>
+<tr>
+<td>后训练与环境</td>
+<td>§4，pp.12–16</td>
+</tr>
+<tr>
+<td>KCP、MoonEP、显存</td>
+<td>§5.1–5.2，pp.17–21；附录 E，pp.45–46</td>
+</tr>
+<tr>
+<td>长上下文 RL 与推理缓存</td>
+<td>§5.3–5.4，pp.21–25</td>
+</tr>
+<tr>
+<td>公开与内部评测</td>
+<td>Tables 2–4，pp.27–29</td>
+</tr>
+<tr>
+<td>安全、第三方、成本</td>
+<td>§6.2.2–6.4，pp.30–32</td>
+</tr>
+<tr>
+<td>展示案例</td>
+<td>§7，pp.33–34</td>
+</tr>
+<tr>
+<td>XTML</td>
+<td>附录 F，pp.46–47</td>
+</tr>
+</tbody>
+</table>
+<p>XTML 的额外工程细节：全局工具声明和 effort 放在历史前，一次性输出选项放在历史后，以尽量复用已有前缀；assistant 消息区分 think、response、tools；并行调用用索引配对，参数保留类型。报告的 schema 预留 low、medium、high、max，实际训练教师的 effort 是 low、high、max 三档，不能据预留字段就断言 medium 已受支持。</p>
+<p>图示是教学重绘，不复制原报告整页图。公式曲线、玩具数值和报告实测分别标注；SVG 可编辑，PNG 适合下载分享，生成脚本随文章保存。原报告版权归其作者，模型使用条件以<a href="https://huggingface.co/moonshotai/Kimi-K3/blob/main/LICENSE">官方许可</a>为准。</p></article></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230511141236.png" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">早起星人</div><div class="author-info__description">true</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">47</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/oneDuter"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my study Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline">文章目录</div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80-%E9%98%85%E8%AF%BB%E8%B7%AF%E7%BA%BF%E4%B8%8E%E4%B8%BB%E8%A6%81%E7%BB%93%E8%AE%BA"><span class="toc-text">一 阅读路线与主要结论</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C-%E5%8F%82%E6%95%B0%E8%A1%A8%E5%BA%94%E8%AF%A5%E6%80%8E%E6%A0%B7%E8%AF%BB"><span class="toc-text">二 参数表应该怎样读</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89-kda-%E5%A6%82%E4%BD%95%E6%8A%8A%E5%89%8D%E6%96%87%E5%8F%98%E6%88%90%E5%8F%AF%E6%9B%B4%E6%96%B0%E7%9A%84%E8%AE%B0%E5%BF%86"><span class="toc-text">三 KDA 如何把前文变成可更新的记忆</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%A0%E7%BB%9F%E6%B3%A8%E6%84%8F%E5%8A%9B%E4%B8%8E%E9%80%92%E5%BD%92%E7%8A%B6%E6%80%81"><span class="toc-text">传统注意力与递归状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E4%B8%89%E6%AD%A5%E6%8B%86%E5%BC%80%E5%85%AC%E5%BC%8F"><span class="toc-text">用三步拆开公式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%92%E5%BD%92%E5%B9%B6%E4%B8%8D%E7%AD%89%E4%BA%8E%E8%AE%AD%E7%BB%83%E6%97%B6%E9%80%90-token-%E4%B8%B2%E8%A1%8C"><span class="toc-text">递归并不等于训练时逐 token 串行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BF%AE%E6%94%B9%E9%81%97%E5%BF%98%E9%97%A8%E5%B0%B1%E8%83%BD%E6%94%B9%E5%8F%98-gpu-%E6%80%A7%E8%83%BD"><span class="toc-text">四 为什么修改遗忘门就能改变 GPU 性能</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BF%9D%E7%95%99-gated-mla"><span class="toc-text">为什么保留 Gated MLA</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94-attnres-%E5%A6%82%E4%BD%95%E8%AE%A9%E6%B7%B1%E5%B1%82%E7%BD%91%E7%BB%9C%E9%87%8D%E6%96%B0%E9%80%89%E6%8B%A9%E4%BF%A1%E6%81%AF"><span class="toc-text">五 AttnRes 如何让深层网络重新选择信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD-stable-latentmoe-%E5%A6%82%E4%BD%95%E6%89%A9%E5%A4%A7%E4%B8%93%E5%AE%B6%E6%B1%A0"><span class="toc-text">六 Stable LatentMoE 如何扩大专家池</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83-situ-%E4%B8%8E-quantile-balancing-%E7%9A%84%E7%BB%86%E8%8A%82"><span class="toc-text">七 SiTU 与 Quantile Balancing 的细节</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#situ-%E7%BB%99%E4%B8%A4%E4%B8%AA%E4%B9%98%E6%B3%95%E5%88%86%E6%94%AF%E9%83%BD%E5%8A%A0%E8%BD%AF%E4%B8%8A%E9%99%90"><span class="toc-text">SiTU 给两个乘法分支都加软上限</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#qb-%E7%94%A8%E5%88%86%E4%BD%8D%E6%95%B0%E5%86%B3%E5%AE%9A%E5%81%8F%E7%BD%AE%E5%BA%94%E5%BD%93%E7%A7%BB%E5%8A%A8%E5%A4%9A%E5%B0%91"><span class="toc-text">QB 用分位数决定偏置应当移动多少</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB-%E5%8E%9F%E7%94%9F%E8%A7%86%E8%A7%89%E4%B8%8E%E7%99%BE%E4%B8%87%E4%B8%8A%E4%B8%8B%E6%96%87%E6%98%AF%E6%80%8E%E6%A0%B7%E8%AE%AD%E7%BB%83%E5%87%BA%E6%9D%A5%E7%9A%84"><span class="toc-text">八 原生视觉与百万上下文是怎样训练出来的</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#moonvit-%E4%BB%8E%E5%A4%B4%E4%B8%8E%E8%AF%AD%E8%A8%80%E9%AA%A8%E5%B9%B2%E4%B8%80%E8%B5%B7%E5%AD%A6%E4%B9%A0"><span class="toc-text">MoonViT 从头与语言骨干一起学习</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%92%8C%E8%AE%AD%E7%BB%83%E8%AF%BE%E7%A8%8B"><span class="toc-text">数据和训练课程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#25-%E5%80%8D%E6%95%88%E7%8E%87%E7%9A%84%E6%AD%A3%E7%A1%AE%E5%8F%A3%E5%BE%84"><span class="toc-text">2.5 倍效率的正确口径</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D-%E5%90%8E%E8%AE%AD%E7%BB%83%E5%A6%82%E4%BD%95%E6%8A%8A%E8%83%BD%E5%8A%9B%E6%95%B4%E5%90%88%E6%88%90%E4%B8%80%E4%B8%AA%E6%A8%A1%E5%9E%8B"><span class="toc-text">九 后训练如何把能力整合成一个模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#sft-%E6%8F%90%E4%BE%9B%E5%8F%AF%E7%BB%A7%E7%BB%AD%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%9A%84%E8%B5%B7%E7%82%B9"><span class="toc-text">SFT 提供可继续强化学习的起点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B9%9D%E4%B8%AA%E6%95%99%E5%B8%88%E5%88%86%E5%88%AB%E5%AD%A6%E4%B9%A0%E9%A2%86%E5%9F%9F%E4%B8%8E%E9%A2%84%E7%AE%97"><span class="toc-text">九个教师分别学习领域与预算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E6%95%99%E5%B8%88-on-policy-%E8%92%B8%E9%A6%8F"><span class="toc-text">多教师 on-policy 蒸馏</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81-%E8%AE%AD%E7%BB%83%E7%8E%AF%E5%A2%83%E4%B8%BA%E4%BD%95%E5%86%B3%E5%AE%9A%E4%BB%A3%E7%90%86%E4%BC%9A%E5%AD%A6%E6%88%90%E4%BB%80%E4%B9%88%E6%A0%B7"><span class="toc-text">十 训练环境为何决定代理会学成什么样</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%98%E5%8C%96%E7%9A%84%E5%B7%A5%E5%85%B7%E6%A1%86%E6%9E%B6%E5%87%8F%E5%B0%91%E6%8E%A5%E5%8F%A3%E8%BF%87%E6%8B%9F%E5%90%88"><span class="toc-text">变化的工具框架减少接口过拟合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A5%96%E5%8A%B1%E5%BA%94%E6%A3%80%E6%9F%A5%E6%9C%80%E7%BB%88%E7%8E%AF%E5%A2%83%E7%8A%B6%E6%80%81"><span class="toc-text">奖励应检查最终环境状态</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%80-kda-%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B9%B6%E8%A1%8C%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0"><span class="toc-text">十一 KDA 上下文并行如何实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%BA%8C-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83%E7%9A%84%E6%98%BE%E5%AD%98%E4%B8%8E%E8%B4%9F%E8%BD%BD%E9%97%AE%E9%A2%98"><span class="toc-text">十二 大模型训练的显存与负载问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#qb-%E4%B8%8E-moonep-%E7%9A%84%E5%B9%B3%E8%A1%A1%E7%9B%AE%E6%A0%87%E4%B8%8D%E5%90%8C"><span class="toc-text">QB 与 MoonEP 的平衡目标不同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%98%BE%E5%AD%98%E6%98%AF%E5%A4%9A%E7%A7%8D%E7%8A%B6%E6%80%81%E5%85%B1%E5%90%8C%E7%AB%9E%E4%BA%89%E7%9A%84%E7%BB%93%E6%9E%9C"><span class="toc-text">显存是多种状态共同竞争的结果</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%89-%E9%95%BF%E4%BB%BB%E5%8A%A1%E6%9A%82%E5%81%9C%E6%97%B6%E7%A9%B6%E7%AB%9F%E8%A6%81%E4%BF%9D%E5%AD%98%E4%BB%80%E4%B9%88"><span class="toc-text">十三 长任务暂停时究竟要保存什么</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#partial-rollout-%E7%BC%A9%E7%9F%AD%E7%AD%89%E5%BE%85%E6%85%A2%E4%BB%BB%E5%8A%A1%E7%9A%84%E6%97%B6%E9%97%B4"><span class="toc-text">Partial rollout 缩短等待慢任务的时间</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E7%8A%B6%E6%80%81%E4%B8%8E%E4%B8%96%E7%95%8C%E7%8A%B6%E6%80%81%E9%83%BD%E8%A6%81%E7%BB%A7%E7%BB%AD"><span class="toc-text">模型状态与世界状态都要继续</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B7%E5%90%88%E7%BC%93%E5%AD%98%E5%BF%85%E9%A1%BB%E5%9C%A8%E5%90%8C%E4%B8%80%E8%BE%B9%E7%95%8C%E6%81%A2%E5%A4%8D"><span class="toc-text">混合缓存必须在同一边界恢复</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E4%B9%9F%E9%81%87%E5%88%B0%E7%8A%B6%E6%80%81%E5%9B%9E%E6%BB%9A"><span class="toc-text">推测解码也遇到状态回滚</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%8E%E7%B2%BE%E5%BA%A6%E4%B8%8E%E5%85%A8%E5%B1%80%E6%9C%8D%E5%8A%A1%E8%B0%83%E5%BA%A6"><span class="toc-text">低精度与全局服务调度</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E5%9B%9B-%E8%AF%84%E6%B5%8B%E6%88%90%E7%BB%A9%E5%BA%94%E8%AF%A5%E6%80%8E%E6%A0%B7%E6%AF%94%E8%BE%83"><span class="toc-text">十四 评测成绩应该怎样比较</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E5%A2%9E%E7%9B%8A%E5%BF%85%E9%A1%BB%E4%B8%8E%E5%9F%BA%E7%A1%80%E5%88%86%E6%95%B0%E4%B8%80%E8%B5%B7%E5%91%88%E7%8E%B0"><span class="toc-text">工具增益必须与基础分数一起呈现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AF%94%E8%BE%83%E6%97%B6%E9%9C%80%E8%A6%81%E4%BF%9D%E7%95%99%E7%9A%84%E6%9D%A1%E4%BB%B6"><span class="toc-text">比较时需要保留的条件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%BA%94-%E5%86%85%E9%83%A8%E8%AF%84%E6%B5%8B%E4%B8%8E%E6%88%90%E6%9C%AC%E7%BB%93%E6%9E%9C%E6%8F%90%E4%BE%9B%E4%BB%80%E4%B9%88%E8%A1%A5%E5%85%85"><span class="toc-text">十五 内部评测与成本结果提供什么补充</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E5%85%AD-%E5%AE%89%E5%85%A8%E8%AF%84%E6%B5%8B%E4%B8%8E%E6%A1%88%E4%BE%8B%E7%A0%94%E7%A9%B6%E7%9A%84%E8%AF%81%E6%8D%AE%E8%BE%B9%E7%95%8C"><span class="toc-text">十六 安全评测与案例研究的证据边界</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E8%AF%84%E6%B5%8B"><span class="toc-text">安全评测</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B1%95%E7%A4%BA%E6%A1%88%E4%BE%8B"><span class="toc-text">展示案例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%83-%E6%8A%8A%E6%95%B4%E7%AF%87%E6%8A%A5%E5%91%8A%E8%BF%9E%E8%B5%B7%E6%9D%A5%E7%90%86%E8%A7%A3"><span class="toc-text">十七 把整篇报告连起来理解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E5%85%AB-%E8%87%AA%E6%B5%8B%E4%B8%8E%E8%BF%9B%E4%B8%80%E6%AD%A5%E9%98%85%E8%AF%BB"><span class="toc-text">十八 自测与进一步阅读</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%A5%E6%BA%90%E4%B8%8E%E5%9B%BE%E7%A4%BA%E8%AF%B4%E6%98%8E"><span class="toc-text">来源与图示说明</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/01/19/%E6%8A%80%E6%9C%AF%E6%A0%88/RabbtiMQ/" title="RabbitMQ"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/Mybatis-plus.png" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="RabbitMQ"/></a><div class="content"><a class="title" href="/2024/01/19/%E6%8A%80%E6%9C%AF%E6%A0%88/RabbtiMQ/" title="RabbitMQ">RabbitMQ</a><time datetime="2024-01-18T16:00:00.000Z" title="Created 2024-01-19 00:00:00">2024-01-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/01/19/%E6%8A%80%E6%9C%AF%E6%A0%88/MQ%E5%9F%BA%E7%A1%80/" title="RabbitMQ"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/Mybatis-plus.png" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="RabbitMQ"/></a><div class="content"><a class="title" href="/2024/01/19/%E6%8A%80%E6%9C%AF%E6%A0%88/MQ%E5%9F%BA%E7%A1%80/" title="RabbitMQ">RabbitMQ</a><time datetime="2024-01-18T16:00:00.000Z" title="Created 2024-01-19 00:00:00">2024-01-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/23/Java/Docker/" title="Docker知识总结"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/spring-boot.jpg" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="Docker知识总结"/></a><div class="content"><a class="title" href="/2023/12/23/Java/Docker/" title="Docker知识总结">Docker知识总结</a><time datetime="2023-12-22T16:00:00.000Z" title="Created 2023-12-23 00:00:00">2023-12-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/22/Java/SpringCloud%E9%9D%A2%E8%AF%95%E7%AF%87/" title="SpringCloud面试篇"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/spring-boot.jpg" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="SpringCloud面试篇"/></a><div class="content"><a class="title" href="/2023/12/22/Java/SpringCloud%E9%9D%A2%E8%AF%95%E7%AF%87/" title="SpringCloud面试篇">SpringCloud面试篇</a><time datetime="2023-12-21T16:00:00.000Z" title="Created 2023-12-22 00:00:00">2023-12-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/22/Java/SpringCloud%E5%BA%94%E7%94%A8%E7%AF%87/" title="SpringCloud应用篇"><img src="https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/cover/spring-boot.jpg" onerror="this.onerror=null;this.src='https://lgj-duter.oss-cn-beijing.aliyuncs.com/img/404.jpg'" alt="SpringCloud应用篇"/></a><div class="content"><a class="title" href="/2023/12/22/Java/SpringCloud%E5%BA%94%E7%94%A8%E7%AF%87/" title="SpringCloud应用篇">SpringCloud应用篇</a><time datetime="2023-12-21T16:00:00.000Z" title="Created 2023-12-22 00:00:00">2023-12-22</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By 早起星人</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container').forEach(node => {
+            if (node.hasAttribute('display')) {
+              btf.wrap(node, 'div', { class: 'mathjax-overflow' })
+            } else {
+              btf.wrap(node, 'span', { class: 'mathjax-overflow' })
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

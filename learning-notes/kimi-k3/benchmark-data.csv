@@ -1,0 +1,22 @@
+benchmark,kimi_k3,claude_fable_5,gpt_5_6_sol,metric,source,conditions
+GPQA Diamond,93.5,92.6,94.1,score,Table 2 p27,max or xhigh; Fable fallback; GPT potential cyberguards
+CritPt,23.4,28.6,32.3,score,Table 2 p27,report snapshot
+HLE-Full no tools,43.5,53.3,44.5,score,Table 2 p27,no tools
+HLE-Full with tools,56.0,63.0,58.0,score,Table 2 p27,general tools
+DeepSWE,67.5,70.0,73.0,score,Table 2 p27,v1.1 tasks; harness-dependent
+ProgramBench,77.8,76.8,77.6,score,Table 2 p27,report settings
+Terminal-Bench 2.1,88.3,88.0,88.8,score,Table 2 p27,best harness for each model
+FrontierSWE,81.2,86.6,71.3,score,Table 2 p27,dominance scores recomputed July 16 2026
+SWE-Marathon,42.0,35.0,39.0,score,Table 2 p27,H20 calibrated pre-final-v1.1 branch; Fable 35% fallback
+BrowseComp,91.2,88.0,90.4,score,Table 2 p27,K3 compaction at 300K
+AutomationBench,30.8,29.1,29.7,score,Table 2 p27,600 task public subset
+OSWorld 2.0,58.3,66.1,62.6,score,Table 2 p27,report settings
+GDPval-AA v2,1686,1747,1736,Elo,Table 2 p27,Artificial Analysis snapshot July 23 2026
+MMMU-Pro no tools,81.6,81.2,83.0,score,Table 2 p27,no tools
+MMMU-Pro with tools,83.4,86.5,84.6,score,Table 2 p27,Python tools
+CharXiv RQ no tools,84.8,88.9,84.6,score,Table 2 p27,no tools
+CharXiv RQ with tools,91.3,93.5,89.1,score,Table 2 p27,Python tools
+Math-Vision no tools,94.3,94.8,95.8,score,Table 2 p27,no tools
+Math-Vision with tools,97.8,98.6,97.8,score,Table 2 p27,Python tools
+ZeroBench-main no tools,23.0,23.0,17.0,pass@5,Table 2 p27,five attempts; no tools
+ZeroBench-main with tools,41.0,46.0,35.0,pass@5,Table 2 p27,five attempts; Python tools

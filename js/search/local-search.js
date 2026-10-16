@@ -172,9 +172,17 @@ class LocalSearch {
 
   fetchData () {
     const isXml = !this.path.endsWith('json')
-    fetch(this.path)
-      .then(response => response.text())
-      .then(res => {
+    // Resolve the generated relative path from the site root on article pages.
+    const root = new URL(GLOBAL_CONFIG.root || '/', location.origin)
+    const indexUrl = new URL(this.path, root)
+    const supplementUrl = new URL('search-kimi-k3.json', root)
+    Promise.all([
+      fetch(indexUrl).then(response => response.text()),
+      fetch(supplementUrl)
+        .then(response => response.ok ? response.json() : [])
+        .catch(() => [])
+    ])
+      .then(([res, supplement]) => {
         // Get the contents from search data
         this.isfetched = true
         this.datas = isXml
@@ -184,6 +192,12 @@ class LocalSearch {
               url: element.querySelector('url').textContent
             }))
           : JSON.parse(res)
+        // Keep the historical index intact; merge the small new-article index.
+        // Deduplicate when a later site build also indexes this article.
+        this.datas = [...new Map([
+          ...this.datas,
+          ...(Array.isArray(supplement) ? supplement : [])
+        ].map(data => [decodeURIComponent(data.url), data])).values()]
         // Only match articles with non-empty titles
         this.datas = this.datas.filter(data => data.title).map(data => {
           data.title = data.title.trim()
@@ -358,3 +372,4 @@ window.addEventListener('load', () => {
     searchClickFn()
   })
 })
+

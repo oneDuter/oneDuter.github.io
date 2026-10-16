@@ -4,6 +4,7 @@
 
 | 日期 | 主题 | 记录与练习 |
 | --- | --- | --- |
+| 2026-10-16 | Kimi K3 架构、长上下文与代理训练 | [详细解读](2026-10-16-kimi-k3-deep-dive.md) · [博客文章](https://oneDuter.github.io/2026/10/16/learning/kimi-k3-deep-dive/) · [图示与数据](kimi-k3/README.md) |
 | 2026-10-16 | Jev 决策模型、概率校准与工程实践 | [学习记录](2026-10-16-jev-decision-models.md) · [博客文章](https://oneDuter.github.io/2026/10/16/learning/jev-decision-models/) · [校准练习](examples/jev_calibration_demo.py) |
 
 本仓库保存的是 Hexo 生成后的静态站点，没有原始 Hexo 项目。此篇文章采用仓库现有页面样式发布，Markdown 是本篇记录的编辑源；后续若从其他 Hexo 源项目重新生成站点，应先把这篇文章迁回该源项目，避免覆盖手工增加的内容。
@@ -30,3 +31,5 @@ python3 -m venv /tmp/jev-note-render
 ```bash
 dot -Tsvg learning-notes/jev-decision-flow.dot -o img/learning-notes/jev-decision-flow.svg
 ```
+
+Kimi K3 解读更新后运行 `python3 tools/publish_kimi_k3_note.py`。图示生成与文章渲染说明见 [配套资料](kimi-k3/README.md)。
